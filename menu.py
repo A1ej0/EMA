@@ -1,7 +1,21 @@
+#Proyecto EMA Estacion de monitoreo automatica, sistema monitoreo ambiental basado en lectura de temperatura, aceleracion e inclinacion.
+
+from EMA import EMA
+from machine import I2C, Pin
+import machine
 import time
+import _thread
+import os
 from lcd_api import LcdApi
 from i2c_lcd import I2cLcd
-from machine import I2C, Pin
+
+
+#Configuracion del puerto i2c
+bus = I2C(1, scl=Pin(22), sda=Pin(21), freq=100000)
+#Instancia de EMA
+EMA = EMA(bus)
+
+dispositivos = EMA.escaneoInicial()
 
 bus = I2C(1, scl=Pin(22), sda=Pin(21), freq=100000)
 lcd = I2cLcd(bus, 39, 2, 16)
@@ -10,7 +24,7 @@ button2 = Pin(26, Pin.IN, Pin.PULL_DOWN)
 button3 = Pin(27, Pin.IN, Pin.PULL_DOWN)
 Celular="3123776985"
 
-lcd.putstr("Bienvenido a EMA Iniciando...")
+lcd.putstr("Ajuste Inicial..")
 time.sleep(1.5)
 
 
@@ -20,6 +34,7 @@ navM=0
 opc=""
 TEMPERATURA=0.0
 MOVIMIENTO=0.0
+temp = 0.0
 PERIODO=""
 lcd.clear()
 
@@ -29,7 +44,7 @@ Umbrales=["U. Temp","U. mov","Atras","------------FIN-"]
 Telefono=["3123776985","Atras","------------FIN-"]
 Calibracion=["Cal. Temp","Cal. Mov","Atras","------------FIN-"]
 Periodo=["Ajustar","Atras","------------FIN-"]
-iniciar=["Iniciando...","----------------"]
+iniciar=["Confirmar.","----------------"]
 Tiempos=["1segundo","30segundos","1min","5min","10min","30min","1hora","12horas","1dia","1semana"]
 mainMenu=[menu,Umbrales,Telefono,Calibracion,Periodo,iniciar]
 
@@ -61,6 +76,7 @@ def calibracion():
         lcd.putstr("Calibrando")
         lcd.move_to(0,1)
         lcd.putstr("Temperatura")
+        EMA.calibracionTemp()
     elif opc=="mov":
         lcd.clear()
         lcd.move_to(0,0)
@@ -76,9 +92,10 @@ def periodo():
     lcd.putstr(" - "+Tiempos[estadoMenu]+"  +") 
 
 ajusteInicial()
-while True:
-    if button1.value():
-        
+
+def menuAjuste(boton1,boton2,boton3):
+    global navM,estadoMenu,mainMenu,estado1,opc
+    if boton1: 
         if navM==0:
             estadoMenu=estadoMenu-1
             estadoMenu=0 if estadoMenu<0 else estadoMenu
@@ -95,7 +112,7 @@ while True:
             periodo()
             time.sleep(0.5) 
         
-    elif button2.value():
+    elif boton2:
         if navM==0:
             if mainMenu[estado1][estadoMenu]=="Atras":
                 estado1=0
@@ -119,6 +136,8 @@ while True:
             elif mainMenu[estado1][estadoMenu]=="Ajustar":
                 navM=3
                 periodo()
+            elif mainMenu[estado1][estadoMenu]=="Confirmar.":
+                navM=99
             else:
                 estado1=estadoMenu+1
                 estadoMenu=0
@@ -159,7 +178,7 @@ while True:
             ajusteInicial()
             time.sleep(0.5)
             
-    elif button3.value():
+    elif boton3:
         
         if navM==0:
             estadoMenu=estadoMenu+1
@@ -176,3 +195,30 @@ while True:
             estadoMenu=9 if estadoMenu>8 else estadoMenu
             periodo()
             time.sleep(0.5)
+
+def SecondCore():
+    while True:
+        EMA.conectaWifi ("FAMILIA_ARCILA", "Arcila2468",str(temp))
+        time.sleep(1)
+
+
+while True:
+    boton1=button1.value()
+    boton2=button2.value()
+    boton3=button3.value()
+    if navM!=99:
+        menuAjuste(boton1,boton2,boton3)
+    elif navM==99:
+        navM=98
+        time.sleep(2)
+        lcd.backlight_off()
+        lcd.display_off()
+        print(navM)
+        _thread.start_new_thread(SecondCore,())
+        print("Inicia Protocolo de envio en core2")
+    if navM==98:
+        temp = EMA.temperature()
+        #EMA.escribirSD(temp)
+        #print(EMA.leerSD())
+        time.sleep(1)
+    time.sleep(0.3)
