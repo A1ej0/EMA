@@ -49,7 +49,7 @@ Agregar librerias y libreria global en la carpeta "lib" dentro del dispositivo.\
 ## Faltante!!
 - RTC
 - Sensor HALL (pluviometro)
-- definicion de puertos de conexion
+- definicion de puertos de conexion FISICOS
 - definicion de apartado fisico
 - planeacion electronica (PCB, POTENCIA, ALIMENTACION)
 
