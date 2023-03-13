@@ -1,31 +1,73 @@
 #Proyecto EMA Estacion de monitoreo automatica, sistema monitoreo ambiental basado en lectura de temperatura, aceleracion e inclinacion.
-
 from EMA import EMA
-from machine import I2C, Pin
+from machine import I2C, Pin, SPI
 import machine
+import framebuf
 import time
 import _thread
 import os
-from lcd_api import LcdApi
-from i2c_lcd import I2cLcd
-
-
+import ssd1306
 #Configuracion del puerto i2c
 bus = I2C(1, scl=Pin(22), sda=Pin(21), freq=100000)
+
+sd = machine.SDCard(slot=2, freq=1320000)
+os.mount(sd, "/sd")
+
+try:
+    os.stat("/sd/em.conf")
+    with open("/sd/ema.conf") as archivo:
+        datos=archivo.readlines()
+        wifi = datos[0]
+        wifi = wifi[:-1]
+        claveWifi=datos[1]
+        claveWifi=claveWifi[:-1]
+        telefono=datos[2]
+        telefono=telefono[:-1]
+        server=datos[3]
+        server=server[:-1]
+        puerto=datos[4]
+        puerto=puerto[:-1]
+        user=datos[5]
+        user=user[:-1]
+        claveMqtt=datos[6]
+        claveMqtt=claveMqtt[:-1]
+except OSError:
+    print("no")
+    hspi = SPI(1, 10000000, sck=Pin(14), mosi=Pin(13), miso=Pin(12))
+    dc = Pin(4)    # data/command
+    rst = Pin(2)   # reset
+    cs = Pin(15)   # chip select, some modules do not have a pin for this
+    display = ssd1306.SSD1306_SPI(128, 64, hspi, dc, rst, cs)
+    while True:
+        for i in range(15):            
+            with open('anim/'+str(i)+'.pbm', 'rb') as f:
+                f.readline() # Magic number
+                f.readline() # Creator comment
+                f.readline() # Dimensions
+                data = bytearray(f.read())
+            fbuf = framebuf.FrameBuffer(data, 128, 64, framebuf.MONO_HLSB)
+            display.invert(0)
+            display.blit(fbuf, 0, 0)
+            display.text("EMA",1,1,1)
+            display.text("V.1.0",90,1,1)
+            display.text("error",45,30,1)
+            display.text("conf no existe",5,56,1)
+            display.show()
+            time.sleep(0.1)
+        display.fill(0)
+        display.show()
+        
 #Instancia de EMA
-EMA = EMA(bus)
+EMA = EMA(bus,server,puerto,user,claveMqtt)
 
 dispositivos = EMA.escaneoInicial()
+time.sleep(2)
 
-bus = I2C(1, scl=Pin(22), sda=Pin(21), freq=100000)
-lcd = I2cLcd(bus, 39, 2, 16)
 button1 = Pin(25, Pin.IN, Pin.PULL_DOWN)
 button2 = Pin(26, Pin.IN, Pin.PULL_DOWN)
 button3 = Pin(27, Pin.IN, Pin.PULL_DOWN)
 Celular="3123776985"
 
-lcd.putstr("Ajuste Inicial..")
-time.sleep(1.5)
 
 
 estadoMenu=0
@@ -35,13 +77,14 @@ opc=""
 TEMPERATURA=0.0
 MOVIMIENTO=0.0
 temp = 0.0
+datos = [0,0,0,0]
 PERIODO=""
-lcd.clear()
+EMA.limpiarOLED()
 
 
 menu = ["Umbrales","Telefono","Calibracion","Periodo","Iniciar","------------FIN-"]
 Umbrales=["U. Temp","U. mov","Atras","------------FIN-"]
-Telefono=["3123776985","Atras","------------FIN-"]
+Telefono=[str(telefono),"Atras","------------FIN-"]
 Calibracion=["Cal. Temp","Cal. Mov","Atras","------------FIN-"]
 Periodo=["Ajustar","Atras","------------FIN-"]
 iniciar=["Confirmar.","----------------"]
@@ -49,47 +92,36 @@ Tiempos=["1segundo","30segundos","1min","5min","10min","30min","1hora","12horas"
 mainMenu=[menu,Umbrales,Telefono,Calibracion,Periodo,iniciar]
 
 def ajusteInicial():
-    lcd.clear()
-    lcd.move_to(0,0)
-    lcd.putstr(mainMenu[estado1][estadoMenu]+" *")
-    lcd.move_to(0,1)
-    lcd.putstr(mainMenu[estado1][estadoMenu+1])
+    EMA.limpiarOLED()
+    EMA.escribirOLED(mainMenu[estado1][estadoMenu]+" *",10,20)
+    EMA.escribirOLED(mainMenu[estado1][estadoMenu+1],10,30)
     
 def umbrales():
     if opc=="temp":
-        lcd.clear()
-        lcd.move_to(0,0)
-        lcd.putstr("Umbral Temp...")
-        lcd.move_to(0,1)
-        lcd.putstr("    -  "+str(estadoMenu)+"  +   ")
+        EMA.limpiarOLED()
+        EMA.escribirOLED("Umbral Temperatura",0,20)
+        EMA.escribirOLED("    -  "+str(estadoMenu)+"  +   ",10,30)
     elif opc=="mov":
-        lcd.clear()
-        lcd.move_to(0,0)
-        lcd.putstr("Umbral mov...")
-        lcd.move_to(0,1)
-        lcd.putstr("    -  "+str(estadoMenu)+"  +   ")
+        EMA.limpiarOLED()
+        EMA.escribirOLED("Umbral movimiento",0,20)
+        EMA.escribirOLED("    -  "+str(estadoMenu)+"  +   ",10,30)
         
 def calibracion():
     if opc=="temp":
-        lcd.clear()
-        lcd.move_to(0,0)
-        lcd.putstr("Calibrando")
-        lcd.move_to(0,1)
-        lcd.putstr("Temperatura")
+        EMA.limpiarOLED()
+        EMA.escribirOLED("Calibrando",10,20)
+        EMA.escribirOLED("Temperatura",10,30)
         EMA.calibracionTemp()
     elif opc=="mov":
-        lcd.clear()
-        lcd.move_to(0,0)
-        lcd.putstr("Calibrando")
-        lcd.move_to(0,1)
-        lcd.putstr("Giroscopio")
+        EMA.limpiarOLED()
+        EMA.escribirOLED("Calibrando",10,20)
+        EMA.escribirOLED("Giroscopio",10,30)
+        EMA.calibracionAcel()
         
 def periodo():
-    lcd.clear()
-    lcd.move_to(0,0)
-    lcd.putstr("Periodo Tiempo")
-    lcd.move_to(0,1)
-    lcd.putstr(" - "+Tiempos[estadoMenu]+"  +") 
+    EMA.limpiarOLED()
+    EMA.escribirOLED("Periodo Tiempo",10,20)
+    EMA.escribirOLED(" - "+Tiempos[estadoMenu]+"  +",10,30) 
 
 ajusteInicial()
 
@@ -198,7 +230,7 @@ def menuAjuste(boton1,boton2,boton3):
 
 def SecondCore():
     while True:
-        EMA.conectaWifi ("FAMILIA_ARCILA", "Arcila2468",str(temp))
+        EMA.conectaWifi (wifi, claveWifi,datos)
         time.sleep(1)
 
 
@@ -211,13 +243,14 @@ while True:
     elif navM==99:
         navM=98
         time.sleep(2)
-        lcd.backlight_off()
-        lcd.display_off()
+        EMA.animLoading()
         print(navM)
         _thread.start_new_thread(SecondCore,())
         print("Inicia Protocolo de envio en core2")
     if navM==98:
+        acel = EMA.aceleracion()
         temp = EMA.temperature()
+        datos= [temp,acel[0],acel[1],acel[2]]
         #EMA.escribirSD(temp)
         #print(EMA.leerSD())
         time.sleep(1)
