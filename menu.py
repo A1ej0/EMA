@@ -14,7 +14,7 @@ sd = machine.SDCard(slot=2, freq=1320000)
 os.mount(sd, "/sd")
 
 try:
-    os.stat("/sd/em.conf")
+    os.stat("/sd/ema.conf")
     with open("/sd/ema.conf") as archivo:
         datos=archivo.readlines()
         wifi = datos[0]
@@ -64,7 +64,7 @@ dispositivos = EMA.escaneoInicial()
 time.sleep(2)
 
 button1 = Pin(25, Pin.IN, Pin.PULL_DOWN)
-button2 = Pin(26, Pin.IN, Pin.PULL_DOWN)
+button2 = Pin(26, Pin.IN, Pin.PULL_UP)
 button3 = Pin(27, Pin.IN, Pin.PULL_DOWN)
 Celular="3123776985"
 
@@ -233,13 +233,25 @@ def SecondCore():
         EMA.conectaWifi (wifi, claveWifi,datos)
         time.sleep(1)
 
-
+estadoPrevioA=button1.value()
+boton1=boton2=boton3=0
 while True:
-    boton1=button1.value()
-    boton2=button2.value()
-    boton3=button3.value()
+    estadoA = button1.value()
+    if estadoA != estadoPrevioA:     
+        if button3.value() != estadoA:
+            print("derecha")
+            boton3=1
+        else:
+            print("izquierda")
+            boton1=1
+    estadoPrevioA = estadoA
+    if not button2.value():
+        boton2=1
+    else:
+        boton2=0
     if navM!=99:
         menuAjuste(boton1,boton2,boton3)
+        boton1=boton3=0
     elif navM==99:
         navM=98
         time.sleep(2)
@@ -254,4 +266,4 @@ while True:
         #EMA.escribirSD(temp)
         #print(EMA.leerSD())
         time.sleep(1)
-    time.sleep(0.3)
+    #time.sleep(0.3)
