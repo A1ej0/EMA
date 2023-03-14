@@ -106,9 +106,12 @@ class EMA():
         self.B5_raw = None
         self.MSB_raw = None
         self.LSB_raw = None
-        print("Iniciacion completada")
-    def calibracionAcel(self):
-        self.acel.ak8963.calibrate(count=20) 
+        print("Calibracion Temperatura completada")
+        return "calibrado"
+    def calibracionAcel(self,rounds):
+        self.iteraciones=rounds
+        self.acel.ak8963.calibrate(count=self.iteraciones)
+        return "calibrado"
     def temperature(self):
         self._bmp_i2c.writeto_mem(self.direccionTemperatura, 0xF4, bytearray([0x2E]))
         time.sleep_ms(5)
@@ -166,6 +169,7 @@ class EMA():
             self.cliente.publish("acelX",str(temp[1]))
             self.cliente.publish("acelY",str(temp[2]))
             self.cliente.publish("acelZ",str(temp[3]))
+            self.cliente.publish("Pluv",str(temp[4]))
             print("Envio exitoso!")
         except:
             print("error de envio")
