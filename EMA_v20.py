@@ -9,6 +9,7 @@ from simple import MQTTClient
 import ssd1306
 import framebuf
 from mpu9250 import MPU9250
+import ds1302
 
 class EMA():
     
@@ -23,6 +24,9 @@ class EMA():
         rst = Pin(2)   # reset
         cs = Pin(15)   # chip select, some modules do not have a pin for this
         self.display = ssd1306.SSD1306_SPI(128, 64, self.hspi, dc, rst, cs)
+        
+        #RTC_init
+        self.ds = ds1302.DS1302(Pin(12),Pin(33),Pin(32))
         
         #UART_init
         self.uart1 = UART(2, baudrate=115200, tx=17, rx=16)
@@ -50,31 +54,31 @@ class EMA():
         119:"Temperatura"
         }
     
-    def error(self,a):
-        if a[0]==1:
-            msg="simMod"
-        elif a[1]==1:
-            msg="SDMod"
-        else:
-            msg="conf"
-        while True:
-            for i in range(15):            
-                with open('anim/'+str(i)+'.pbm', 'rb') as f:
-                    f.readline() # Magic number
-                    f.readline() # Creator comment
-                    f.readline() # Dimensions
-                    data = bytearray(f.read())
-                fbuf = framebuf.FrameBuffer(data, 128, 64, framebuf.MONO_HLSB)
-                self.display.invert(0)
-                self.display.blit(fbuf, 0, 0)
-                self.display.text("EMA",1,1,1)
-                self.display.text("V.1.0",90,1,1)
-                self.display.text("error",45,30,1)
-                self.display.text(msg+" no existe",1,56,1)
-                self.display.show()
-                time.sleep(0.1)
-            self.display.fill(0)
-            self.display.show()
+#     def error(self,a):
+#         if a[0]==1:
+#             msg="simMod"
+#         elif a[1]==1:
+#             msg="SDMod"
+#         else:
+#             msg="conf"
+#         while True:
+#             for i in range(15):            
+#                 with open('anim/'+str(i)+'.pbm', 'rb') as f:
+#                     f.readline() # Magic number
+#                     f.readline() # Creator comment
+#                     f.readline() # Dimensions
+#                     data = bytearray(f.read())
+#                 fbuf = framebuf.FrameBuffer(data, 128, 64, framebuf.MONO_HLSB)
+#                 self.display.invert(0)
+#                 self.display.blit(fbuf, 0, 0)
+#                 self.display.text("EMA",1,1,1)
+#                 self.display.text("V.1.0",90,1,1)
+#                 self.display.text("error",45,30,1)
+#                 self.display.text(msg+" no existe",1,56,1)
+#                 self.display.show()
+#                 time.sleep(0.1)
+#             self.display.fill(0)
+#             self.display.show()
                 
     def animLoading(self):
         for i in range(15):            
@@ -154,7 +158,7 @@ class EMA():
             self.dispositivos[5]=1
         except OSError:
             print("SD NO Detectada")
-            self.errores_criticos[1]=1
+            #self.errores_criticos[1]=1
         
         #Comprobacion archivo de configuracion inicial
         try:
@@ -179,7 +183,7 @@ class EMA():
                 self.claveMqtt=self.claveMqtt[:-1]
         except OSError:
             print("Archivo de ajuste NO Detectado")
-            self.errores_criticos[2]=1
+            #self.errores_criticos[2]=1
         
         #Ajustes TEMPORALES de prueba
         self.wifi = "Alejandro"
@@ -198,8 +202,8 @@ class EMA():
         print(self.errores_criticos)
         for i in range(len(devices)):
             print(str(i+1)+". "+str(self.sensores.get(devices[i])))
-        if 1 in self.errores_criticos:
-            self.error(self.errores_criticos)
+#         if 1 in self.errores_criticos:
+#             self.error(self.errores_criticos)
         self.limpiarOLED()
         self.escribirOLED("Completo",5,30)
         time.sleep(1)
@@ -251,6 +255,10 @@ class EMA():
     def Pluviometro(self):
         self.gauss = round(((round(self.hall.read_uv()/1000000,2)/3.3)*2000)-1000,2)
         return(self.gauss)
+    
+    #Retorno de hora y fecha RTC
+    def rtc(self):
+        return(ds.date_time())
     
     #Funciones de OLED
     def escribirOLED(self,texto,x,y):
