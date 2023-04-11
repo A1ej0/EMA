@@ -31,7 +31,9 @@ while True:
     if dispositivos[3]==1:
         gauss = EMA.Pluviometro()
         #print(EMA.Pluviometro())
-        
-    datos= [temp,acel[0],acel[1],acel[2],gauss,lecturaGPS2[0],lecturaGPS2[1],lecturaGPS2[2],lecturaGPS2[3]]
+    fechaHora = EMA.rtc()
+    hora=str(fechaHora[4])+":"+str(fechaHora[5])+":"+str(fechaHora[6])
+    fecha=str(fechaHora[2])+"/"+str(fechaHora[1])+"/"+str(fechaHora[0])       
+    datos= [temp,acel[0],acel[1],acel[2],gauss,lecturaGPS2[0],lecturaGPS2[1],fecha,hora]
     time.sleep(0.5)
     
