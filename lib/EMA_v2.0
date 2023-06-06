@@ -1,0 +1,123 @@
+from ustruct import unpack as unp
+from machine import I2C, Pin, SPI, UART, ADC
+import network, urequests
+import math
+import time
+import os
+import machine
+from simple import MQTTClient
+import ssd1306
+import framebuf
+from mpu9250 import MPU9250
+
+class EMA():
+    
+    def __init__(self):
+        #i2c_init
+        self.bus = I2C(1, scl=Pin(22), sda=Pin(21), freq=100000)
+        
+        #oled_init
+        self.hspi = SPI(1, 10000000, sck=Pin(14), mosi=Pin(13), miso=Pin(12))
+        dc = Pin(4)    # data/command
+        rst = Pin(2)   # reset
+        cs = Pin(15)   # chip select, some modules do not have a pin for this
+        self.display = ssd1306.SSD1306_SPI(128, 64, self.hspi, dc, rst, cs)
+        
+        #UART_init
+        self.uart1 = UART(2, baudrate=115200, tx=17, rx=16)
+        
+        #HALL_init
+        self.hall = ADC(Pin(34))
+        self.hall.atten(ADC.ATTN_11DB)
+        
+        #SD_init
+        try:
+            self.sd = machine.SDCard(slot=2, freq=1320000)
+        except:
+            machine.reset()
+        
+        #variables_init
+        self.dispositivos = [0,0,0,0,0,0]
+        self.errores=[1,1,1,1]
+        self.errores_criticos=[0,0,0]
+        self.lecturas=[0.0,0.0,0.0,0.0,0.0,0.0]
+        
+        #Sensor_list
+        sensores = {
+        12:"Magnetometro",
+        104:"Acelerometro",
+        119:"Temperatura"
+        }
+    
+    def error(self,a):
+        if a[0]==1:
+            msg="simMod"
+        elif a[1]==1:
+            msg="SDMod"
+        else:
+            msg="conf"
+        while True:
+            for i in range(15):            
+                with open('anim/'+str(i)+'.pbm', 'rb') as f:
+                    f.readline() # Magic number
+                    f.readline() # Creator comment
+                    f.readline() # Dimensions
+                    data = bytearray(f.read())
+                fbuf = framebuf.FrameBuffer(data, 128, 64, framebuf.MONO_HLSB)
+                self.display.invert(0)
+                self.display.blit(fbuf, 0, 0)
+                self.display.text("EMA",1,1,1)
+                self.display.text("V.1.0",90,1,1)
+                self.display.text("error",45,30,1)
+                self.display.text(msg+" no existe",1,56,1)
+                self.display.show()
+                time.sleep(0.1)
+            self.display.fill(0)
+            self.display.show()
+                
+    def animLoading(self):
+        for i in range(15):            
+            with open('anim/'+str(i)+'.pbm', 'rb') as f:
+                f.readline() # Magic number
+                f.readline() # Creator comment
+                f.readline() # Dimensions
+                data = bytearray(f.read())
+            fbuf = framebuf.FrameBuffer(data, 128, 64, framebuf.MONO_HLSB)
+            self.display.invert(0)
+            self.display.blit(fbuf, 0, 0)
+            self.display.show()
+            time.sleep(0.1)
+        self.display.fill(0)
+        self.display.show()
+    def logoEMA(self):
+        with open('anim/logo.pbm', 'rb') as f:
+            f.readline() # Magic number
+            f.readline() # Creator comment
+            f.readline() # Dimensions
+            data = bytearray(f.read())
+        fbuf = framebuf.FrameBuffer(data, 128, 64, framebuf.MONO_HLSB)
+        self.display.invert(0)
+        self.display.blit(fbuf, 0, 0)
+        self.display.show()
+        time.sleep(2)
+        self.display.fill(0)
+        self.display.show()      
+    def escaneoInicial(self):
+        devices = self.bus.scan()
+        j=0
+        for i in sensores:
+            if i in devices:
+                self.dispositivos[j]=1
+                self.errores[j]=0
+            j=j+1
+        val = self.hall.read_uv()
+        val=round(val/1000000,2)
+        gauss = round(((val/3.3)*2000)-1000,2)
+        if gauss>(-800):
+            print("Pluviometro detectado: ")
+            print(str(gauss)+" Gauss")
+            dispositivos[3]=1
+            errores[3]=0
+        else:
+            print("pluviometro no disponible")
+        

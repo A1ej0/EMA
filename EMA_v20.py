@@ -10,6 +10,28 @@ import ssd1306
 import framebuf
 from mpu9250 import MPU9250
 import ds1302
+import bluetooth
+from BLE import BLEUART
+
+bname="EMA01"
+ble=bluetooth.BLE()
+buart=BLEUART(ble,bname)
+p=0
+
+def on_RX():
+    rxbuffer=buart.read().decode().rstrip('\x00')
+    #buart.write("EMA01 dice: "+rxbuffer+"\n")
+    print(rxbuffer)
+#     for i in range(len(rxbuffer)):
+#          print(ord(rxbuffer[i]))
+    
+    if(rxbuffer=="Hola"):
+        print("Hola")
+    if(rxbuffer=="Adios"):
+        print("Adios")
+
+# register IRQ handler
+buart.irq(handler=on_RX)
 
 class EMA():
     
@@ -53,32 +75,47 @@ class EMA():
         104:"Acelerometro",
         119:"Temperatura"
         }
-    
-#     def error(self,a):
-#         if a[0]==1:
-#             msg="simMod"
-#         elif a[1]==1:
-#             msg="SDMod"
-#         else:
-#             msg="conf"
-#         while True:
-#             for i in range(15):            
-#                 with open('anim/'+str(i)+'.pbm', 'rb') as f:
-#                     f.readline() # Magic number
-#                     f.readline() # Creator comment
-#                     f.readline() # Dimensions
-#                     data = bytearray(f.read())
-#                 fbuf = framebuf.FrameBuffer(data, 128, 64, framebuf.MONO_HLSB)
-#                 self.display.invert(0)
-#                 self.display.blit(fbuf, 0, 0)
-#                 self.display.text("EMA",1,1,1)
-#                 self.display.text("V.1.0",90,1,1)
-#                 self.display.text("error",45,30,1)
-#                 self.display.text(msg+" no existe",1,56,1)
-#                 self.display.show()
-#                 time.sleep(0.1)
-#             self.display.fill(0)
-#             self.display.show()
+    #Funcion para errores "criticos"
+    def error(self,a):
+        b=0
+        c=1
+        while c==1:
+            if a[0]==1:
+                msg="simMod"
+                a[0]=0
+                b=1
+            elif a[1]==1:
+                msg="SDMod"
+                a[1]=0
+                b=1
+            elif a[2]==1:
+                msg="conf"
+                a[2]=0
+                b=1
+            else:
+                c=0
+                self.display.fill(0)
+                self.display.show()
+            if b==1:
+                for i in range(15):            
+                    with open('anim/'+str(i)+'.pbm', 'rb') as f:
+                        f.readline() # Magic number
+                        f.readline() # Creator comment
+                        f.readline() # Dimensions
+                        data = bytearray(f.read())
+                    fbuf = framebuf.FrameBuffer(data, 128, 64, framebuf.MONO_HLSB)
+                    self.display.invert(0)
+                    self.display.blit(fbuf, 0, 0)
+                    self.display.text("EMA",1,1,1)
+                    self.display.text("V.1.0",90,1,1)
+                    self.display.text("error",45,30,1)
+                    self.display.text(msg+" no existe",1,56,1)
+                    self.display.show()
+                    time.sleep(0.1)
+                self.display.fill(0)
+                self.display.show()
+                b=0
+                time.sleep(2)
                 
     def animLoading(self):
         for i in range(15):            
@@ -117,6 +154,7 @@ class EMA():
             self.acel = MPU9250(self.bus)
         j=0
         for i in self.sensores:
+            print(i)
             if i in devices:
                 self.dispositivos[j]=1
                 self.errores[j]=0
@@ -144,7 +182,7 @@ class EMA():
                 time.sleep(0.5)
             elif read==None and a>10:
                 print("Modulo Sim No encontrado")
-                #self.errores_criticos[0]=1
+                self.errores_criticos[0]=1
                 a=0
             else:
                 print("Modulo SIM disponible...")
@@ -158,7 +196,7 @@ class EMA():
             self.dispositivos[5]=1
         except OSError:
             print("SD NO Detectada")
-            #self.errores_criticos[1]=1
+            self.errores_criticos[1]=1
         
         #Comprobacion archivo de configuracion inicial
         try:
@@ -183,13 +221,13 @@ class EMA():
                 self.claveMqtt=self.claveMqtt[:-1]
         except OSError:
             print("Archivo de ajuste NO Detectado")
-            #self.errores_criticos[2]=1
+            self.errores_criticos[2]=1
         
         #Ajustes TEMPORALES de prueba
         self.wifi = "Alejandro"
         self.claveWifi="Alejandro1993"
         self.server="6.tcp.ngrok.io"
-        self.puerto=17494
+        self.puerto=13590
         self.user="EMA"
         self.claveMqtt="SGCEMA"
         
@@ -202,8 +240,8 @@ class EMA():
         print(self.errores_criticos)
         for i in range(len(devices)):
             print(str(i+1)+". "+str(self.sensores.get(devices[i])))
-#         if 1 in self.errores_criticos:
-#             self.error(self.errores_criticos)
+        if 1 in self.errores_criticos:  
+            self.error(self.errores_criticos)
         self.limpiarOLED()
         self.escribirOLED("Completo",5,30)
         time.sleep(1)
@@ -258,7 +296,7 @@ class EMA():
     
     #Retorno de hora y fecha RTC
     def rtc(self):
-        return(ds.date_time())
+        return(self.ds.date_time())
     
     #Funciones de OLED
     def escribirOLED(self,texto,x,y):
@@ -279,17 +317,21 @@ class EMA():
         logf.close()
         return lectura
     def escribirSD(self,temp):
-        data = "/sd/temp.csv"
-        logf = open(data,"a")
-        logf.write(str(temp)+"\n\r")
-        logf.close()
+        try:
+            data = "/sd/temp.csv"
+            logf = open(data,"a")
+            logf.write(str(temp)+"\n\r")
+            logf.close()
+        except:
+            pass
     
     #Ajustes de envio de datos, wifi y MQTT
     def envioDatos (self,temp):
         n=0
+        global p
         miRed = network.WLAN(network.STA_IF)
         self.temp = temp
-        if not miRed.isconnected():
+        if not miRed.isconnected() and p==0:
             miRed.active(False)
             time.sleep(0.5)
             miRed.active(True)                  
@@ -297,17 +339,21 @@ class EMA():
                 miRed.connect(self.wifi, self.claveWifi)         
                 print('Conectando a la red', self.wifi +"…")
             except:
-                conectaWifi(self.wifi,self.claveWifi)
+                pass
             try:
-                while not miRed.isconnected():
-                    print('Conectando a la red', self.wifi +"… " + str(n))
-                    n=n+1
-                    time.sleep(0.5)
-                print ("Conexión exitosa!")
-                print('Datos de la red (IP/netmask/gw/DNS):', miRed.ifconfig())
+                for i in range(10):
+                    if not miRed.isconnected():
+                        print('Conectando a la red', self.wifi +"… " + str(i+1)+'/10...')
+                        time.sleep(0.5)
+                if miRed.isconnected():
+                    print ("Conexión exitosa!")
+                    print('Datos de la red (IP/netmask/gw/DNS):', miRed.ifconfig())
+                else:
+                    print("red Wifi no disponible")
             except:
-                conectaWifi(self.wifi,self.claveWifi)
-        if self.t==0:
+                pass
+            p=1
+        if self.t==0 and miRed.isconnected():
             time.sleep(1)
             try: 
                 print("Conectando MQTT...")
@@ -315,17 +361,25 @@ class EMA():
                 self.t=1
             except:
                 print("error de conexion MQTT...")
-        try:    
-            self.cliente.publish("temp",str(temp[0]))
-            self.cliente.publish("acelX",str(temp[1]))
-            self.cliente.publish("acelY",str(temp[2]))
-            self.cliente.publish("acelZ",str(temp[3]))
-            self.cliente.publish("Pluv",str(temp[4]))
-            self.cliente.publish("Latitud",str(temp[5]))
-            self.cliente.publish("Longitud",str(temp[6]))
-            self.cliente.publish("Fecha",str(temp[7]))
-            self.cliente.publish("Hora",str(temp[8]))
-            print("Envio exitoso!")
+        if miRed.isconnected():
+            try:    
+                self.cliente.publish("temp",str(temp[0]))
+                self.cliente.publish("acelX",str(temp[1]))
+                self.cliente.publish("acelY",str(temp[2]))
+                self.cliente.publish("acelZ",str(temp[3]))
+                self.cliente.publish("Pluv",str(temp[4]))
+                self.cliente.publish("Latitud",str(temp[5]))
+                self.cliente.publish("Longitud",str(temp[6]))
+                self.cliente.publish("Fecha",str(temp[7]))
+                self.cliente.publish("Hora",str(temp[8]))
+                print("Envio exitoso!")
+            except:
+                print("error de envio mediante wifi")
+                self.t=0
+            
+    def envioBt(self,temp):
+        try:
+            buart.write("EMA01 dice: "+str(temp)+"\n")
         except:
             print("error de envio")
             self.t=0
