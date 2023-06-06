@@ -29,15 +29,46 @@ def on_RX():
     global wifi,claveWifi,server,puerto,user,claveMqtt,telefono,p
     
     rxbuffer=buart.read().decode().rstrip('\x00')
+    
     #buart.write("EMA01 dice: "+rxbuffer+"\n")
-    if rxbuffer[0]=="w":
-        rxbuffer=rxbuffer.replace("w","")
-        rxbuffer=rxbuffer.replace("\n","")
-        rxbuffer=rxbuffer.replace("\r","")
-        print("wifi cambiado")
-        print(len(rxbuffer))
-        wifi=str(rxbuffer)
-        p=0
+    lista=rxbuffer.split(',')
+    for element in lista:
+        if element[0]=="w":
+            element=element[1:]
+            element=element.replace("\n","")
+            element=element.replace("\r","")
+            print("wifi cambiado")
+            print(len(element))
+            wifi=str(element)
+            p=0
+        
+        if element[0]=="c":
+            element=element[1:]
+            element=element.replace("\n","")
+            element=element.replace("\r","")
+            print("contraseña cambiada")
+            print(len(element))
+            claveWifi=str(element)
+            p=0
+            
+        if element[0]=="s":
+            element=element[1:]
+            element=element.replace("\n","")
+            element=element.replace("\r","")
+            print("server cambiado")
+            print(element)
+            server=str(element)
+            p=0
+            
+        if element[0]=="p":
+            element=element[1:]
+            element=element.replace("\n","")
+            element=element.replace("\r","")
+            print("puerto cambiado")
+            print(element)
+            puerto=int(element)
+            p=0
+
     print(rxbuffer)
 #     for i in range(len(rxbuffer)):
 #          print(ord(rxbuffer[i]))
@@ -244,15 +275,15 @@ class EMA():
             self.errores_criticos[2]=1
         
         #Ajustes TEMPORALES de prueba
-        wifi = "Alejandro1"
-        claveWifi="Alejandro1993"
-        server="6.tcp.ngrok.io"
-        puerto=13590
+        wifi = "Alejo"
+        claveWifi="testasdfa"
+        server="test"
+        puerto=43423
         user="EMA"
-        claveMqtt="SGCEMA"
+        claveMqtt="EMASGC"
         
         #Ajustes de parametros de MQTT
-        self.cliente = MQTTClient(client_id=str(user),server=str(server),port=int(puerto),user=str(user),password=str(claveMqtt))
+        self.cliente = MQTTClient(client_id=str(user),server=str(server),port=int(puerto),user=str(user),password=str(claveMqtt),keepalive=60)
         
         #Muestra de resultados
         print(self.dispositivos)
@@ -374,6 +405,7 @@ class EMA():
             except:
                 pass
             p=1
+        self.cliente = MQTTClient(client_id=str(user),server=str(server),port=int(puerto),user=str(user),password=str(claveMqtt),keepalive=60)
         if self.t==0 and miRed.isconnected():
             time.sleep(1)
             try: 
