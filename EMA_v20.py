@@ -17,10 +17,27 @@ bname="EMA01"
 ble=bluetooth.BLE()
 buart=BLEUART(ble,bname)
 p=0
+wifi = ""
+claveWifi=""
+server=""
+puerto=0
+user=""
+claveMqtt=""
+telefono=0
 
 def on_RX():
+    global wifi,claveWifi,server,puerto,user,claveMqtt,telefono,p
+    
     rxbuffer=buart.read().decode().rstrip('\x00')
     #buart.write("EMA01 dice: "+rxbuffer+"\n")
+    if rxbuffer[0]=="w":
+        rxbuffer=rxbuffer.replace("w","")
+        rxbuffer=rxbuffer.replace("\n","")
+        rxbuffer=rxbuffer.replace("\r","")
+        print("wifi cambiado")
+        print(len(rxbuffer))
+        wifi=str(rxbuffer)
+        p=0
     print(rxbuffer)
 #     for i in range(len(rxbuffer)):
 #          print(ord(rxbuffer[i]))
@@ -144,6 +161,9 @@ class EMA():
         self.display.show()
         
     def escaneoInicial(self):
+        
+        global wifi,claveWifi,server,puerto,user,claveMqtt,telefono
+        
         self.logoEMA()
         time.sleep(1)
         self.limpiarOLED()
@@ -205,34 +225,34 @@ class EMA():
             time.sleep(1)
             with open("/sd/ema.conf") as archivo:
                 datos=archivo.readlines()
-                self.wifi = datos[0]
-                self.wifi = self.wifi[:-1]
-                self.claveWifi=datos[1]
-                self.claveWifi=self.claveWifi[:-1]
-                self.telefono=datos[2]
-                self.telefono=self.telefono[:-1]
-                self.server=datos[3]
-                self.server=self.server[:-1]
-                self.puerto=datos[4]
-                self.puerto=self.puerto[:-1]
-                self.user=datos[5]
-                self.user=self.user[:-1]
-                self.claveMqtt=datos[6]
-                self.claveMqtt=self.claveMqtt[:-1]
+                wifi = datos[0]
+                wifi = wifi[:-1]
+                claveWifi=datos[1]
+                claveWifi=claveWifi[:-1]
+                telefono=datos[2]
+                telefono=telefono[:-1]
+                server=datos[3]
+                server=server[:-1]
+                puerto=datos[4]
+                puerto=puerto[:-1]
+                user=datos[5]
+                user=user[:-1]
+                claveMqtt=datos[6]
+                claveMqtt=claveMqtt[:-1]
         except OSError:
             print("Archivo de ajuste NO Detectado")
             self.errores_criticos[2]=1
         
         #Ajustes TEMPORALES de prueba
-        self.wifi = "Alejandro"
-        self.claveWifi="Alejandro1993"
-        self.server="6.tcp.ngrok.io"
-        self.puerto=13590
-        self.user="EMA"
-        self.claveMqtt="SGCEMA"
+        wifi = "Alejandro1"
+        claveWifi="Alejandro1993"
+        server="6.tcp.ngrok.io"
+        puerto=13590
+        user="EMA"
+        claveMqtt="SGCEMA"
         
         #Ajustes de parametros de MQTT
-        self.cliente = MQTTClient(client_id=str(self.user),server=str(self.server),port=int(self.puerto),user=str(self.user),password=str(self.claveMqtt))
+        self.cliente = MQTTClient(client_id=str(user),server=str(server),port=int(puerto),user=str(user),password=str(claveMqtt))
         
         #Muestra de resultados
         print(self.dispositivos)
@@ -327,6 +347,7 @@ class EMA():
     
     #Ajustes de envio de datos, wifi y MQTT
     def envioDatos (self,temp):
+        global wifi,claveWifi
         n=0
         global p
         miRed = network.WLAN(network.STA_IF)
@@ -336,14 +357,14 @@ class EMA():
             time.sleep(0.5)
             miRed.active(True)                  
             try:
-                miRed.connect(self.wifi, self.claveWifi)         
+                miRed.connect(wifi, claveWifi)         
                 print('Conectando a la red', self.wifi +"…")
             except:
                 pass
             try:
                 for i in range(10):
                     if not miRed.isconnected():
-                        print('Conectando a la red', self.wifi +"… " + str(i+1)+'/10...')
+                        print('Conectando a la red', wifi +"… " + str(i+1)+'/10...')
                         time.sleep(0.5)
                 if miRed.isconnected():
                     print ("Conexión exitosa!")
