@@ -17,6 +17,7 @@ bname="EMA01"
 ble=bluetooth.BLE()
 buart=BLEUART(ble,bname)
 p=0
+config_flag=False
 wifi = ""
 claveWifi=""
 server=""
@@ -26,9 +27,20 @@ claveMqtt=""
 telefono=0
 
 def on_RX():
-    global wifi,claveWifi,server,puerto,user,claveMqtt,telefono,p
+    global wifi,claveWifi,server,puerto,user,claveMqtt,telefono,p,config_flag
     
     rxbuffer=buart.read().decode().rstrip('\x00')
+    rxbuffer=rxbuffer.replace("\n","")
+    rxbuffer=rxbuffer.replace("\r","")
+        #config
+    if rxbuffer == "EMAconfig":
+        config = [wifi,claveWifi,server,puerto,user,claveMqtt]
+        print(config)
+        buart.write("Config: "+str(config)+"\n")
+        config_flag=True
+    
+    if rxbuffer == "EXITconfig":
+        config_flag=False
     
     #buart.write("EMA01 dice: "+rxbuffer+"\n")
     lista=rxbuffer.split(',')
@@ -67,6 +79,24 @@ def on_RX():
             print("puerto cambiado")
             print(element)
             puerto=int(element)
+            p=0
+            
+        if element[0]=="u":
+            element=element[1:]
+            element=element.replace("\n","")
+            element=element.replace("\r","")
+            print("usuario cambiado")
+            print(element)
+            user=str(element)
+            p=0
+            
+        if element[0]=="m":
+            element=element[1:]
+            element=element.replace("\n","")
+            element=element.replace("\r","")
+            print("clave cambiada")
+            print(element)
+            claveMqtt=str(element)
             p=0
 
     print(rxbuffer)
@@ -431,8 +461,10 @@ class EMA():
                 self.t=0
             
     def envioBt(self,temp):
+        global config_flag
         try:
-            buart.write("EMA01 dice: "+str(temp)+"\n")
+            if not config_flag:
+                buart.write("EMA01 dice: "+str(temp)+"\n")
         except:
             print("error de envio")
             self.t=0
