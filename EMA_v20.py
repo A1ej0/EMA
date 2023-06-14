@@ -17,6 +17,7 @@ bname="EMA01"
 ble=bluetooth.BLE()
 buart=BLEUART(ble,bname)
 p=0
+config_flag=False
 wifi = ""
 claveWifi=""
 server=""
@@ -24,20 +25,93 @@ puerto=0
 user=""
 claveMqtt=""
 telefono=0
+AlertFlag=False
+mensajeAlerta = "Alerta Geologica"
 
 def on_RX():
-    global wifi,claveWifi,server,puerto,user,claveMqtt,telefono,p
+    global wifi,claveWifi,server,puerto,user,claveMqtt,telefono,p,config_flag, AlertFlag
     
     rxbuffer=buart.read().decode().rstrip('\x00')
+    rxbuffer=rxbuffer.replace("\n","")
+    rxbuffer=rxbuffer.replace("\r","")
+        #config
+    if rxbuffer == "EMAconfig":
+        config = [wifi,claveWifi,server,puerto,user,claveMqtt]
+        print(config)
+        buart.write("Config: "+str(config)+"\n")
+        config_flag=True
+    
+    if rxbuffer == "EXITconfig":
+        config_flag=False
+    
     #buart.write("EMA01 dice: "+rxbuffer+"\n")
-    if rxbuffer[0]=="w":
-        rxbuffer=rxbuffer.replace("w","")
-        rxbuffer=rxbuffer.replace("\n","")
-        rxbuffer=rxbuffer.replace("\r","")
-        print("wifi cambiado")
-        print(len(rxbuffer))
-        wifi=str(rxbuffer)
-        p=0
+    lista=rxbuffer.split(',')
+    for element in lista:
+        if element[0]=="w":
+            element=element[1:]
+            element=element.replace("\n","")
+            element=element.replace("\r","")
+            print("wifi cambiado")
+            print(len(element))
+            wifi=str(element)
+            p=0
+        
+        if element[0]=="c":
+            element=element[1:]
+            element=element.replace("\n","")
+            element=element.replace("\r","")
+            print("contraseña cambiada")
+            print(len(element))
+            claveWifi=str(element)
+            p=0
+            
+        if element[0]=="s":
+            element=element[1:]
+            element=element.replace("\n","")
+            element=element.replace("\r","")
+            print("server cambiado")
+            print(element)
+            server=str(element)
+            p=0
+            
+        if element[0]=="p":
+            element=element[1:]
+            element=element.replace("\n","")
+            element=element.replace("\r","")
+            print("puerto cambiado")
+            print(element)
+            puerto=int(element)
+            p=0
+            
+        if element[0]=="u":
+            element=element[1:]
+            element=element.replace("\n","")
+            element=element.replace("\r","")
+            print("usuario cambiado")
+            print(element)
+            user=str(element)
+            p=0
+            
+        if element[0]=="m":
+            element=element[1:]
+            element=element.replace("\n","")
+            element=element.replace("\r","")
+            print("clave cambiada")
+            print(element)
+            claveMqtt=str(element)
+            p=0
+        if element[0]=="t":
+            element=element[1:]
+            element=element.replace("\n","")
+            element=element.replace("\r","")
+            print("Telefono cambiado")
+            print(element)
+            telefono=str(element)
+            p=0
+        if element[0]=="z":
+            AlertFlag=True
+            print("Alerta!!!")
+
     print(rxbuffer)
 #     for i in range(len(rxbuffer)):
 #          print(ord(rxbuffer[i]))
@@ -53,6 +127,10 @@ buart.irq(handler=on_RX)
 class EMA():
     
     def __init__(self):
+        #Leds indicadores
+        self.led1 = Pin(25, Pin.OUT, machine.Pin.PULL_DOWN)
+        self.led2 = Pin(26, Pin.OUT, machine.Pin.PULL_DOWN)
+        self.led3 = Pin(27, Pin.OUT, machine.Pin.PULL_DOWN)
         self.t=0
         #i2c_init
         self.bus = I2C(1, scl=Pin(22), sda=Pin(21), freq=100000)
@@ -244,15 +322,15 @@ class EMA():
             self.errores_criticos[2]=1
         
         #Ajustes TEMPORALES de prueba
-        wifi = "Alejandro1"
-        claveWifi="Alejandro1993"
-        server="6.tcp.ngrok.io"
-        puerto=13590
+        wifi = "Alejo"
+        claveWifi="testasdfa"
+        server="test"
+        puerto=43423
         user="EMA"
-        claveMqtt="SGCEMA"
+        claveMqtt="EMASGC"
         
         #Ajustes de parametros de MQTT
-        self.cliente = MQTTClient(client_id=str(user),server=str(server),port=int(puerto),user=str(user),password=str(claveMqtt))
+        self.cliente = MQTTClient(client_id=str(user),server=str(server),port=int(puerto),user=str(user),password=str(claveMqtt),keepalive=60)
         
         #Muestra de resultados
         print(self.dispositivos)
@@ -344,15 +422,37 @@ class EMA():
             logf.close()
         except:
             pass
-    
+
+    #Alerta mediante SMS
+    def AlertSms(self):
+        global telefono, mensajeAlerta
+        print("Mensaje: "+str(mensajeAlerta)+" enviado a: "+str(telefono))
+        phone = self.uart1
+
+        time.sleep(0.5)
+        phone.write(b'AT\r')
+        time.sleep(0.5)
+        phone.write(b'AT+CMGF=1\r')
+        time.sleep(0.5)
+        phone.write(b'AT+CMGS="' + telefono.encode() + b'"\r')
+        time.sleep(0.5)
+        phone.write(mensajeAlerta.encode() + b"\r")
+        time.sleep(0.5)
+        phone.write(bytes([26]))
+        time.sleep(0.5)
+
+
     #Ajustes de envio de datos, wifi y MQTT
     def envioDatos (self,temp):
-        global wifi,claveWifi
+        global wifi,claveWifi, AlertFlag
         n=0
         global p
         miRed = network.WLAN(network.STA_IF)
         self.temp = temp
         if not miRed.isconnected() and p==0:
+            self.cliente = MQTTClient(client_id=str(user),server=str(server),port=int(puerto),user=str(user),password=str(claveMqtt),keepalive=60)
+            self.led3.value(1)
+            self.led2.value(0)
             miRed.active(False)
             time.sleep(0.5)
             miRed.active(True)                  
@@ -364,9 +464,13 @@ class EMA():
             try:
                 for i in range(10):
                     if not miRed.isconnected():
+                        self.led3.value(1)
+                        self.led2.value(1)
                         print('Conectando a la red', wifi +"… " + str(i+1)+'/10...')
                         time.sleep(0.5)
                 if miRed.isconnected():
+                    self.led3.value(0)
+                    self.led2.value(1)
                     print ("Conexión exitosa!")
                     print('Datos de la red (IP/netmask/gw/DNS):', miRed.ifconfig())
                 else:
@@ -394,13 +498,23 @@ class EMA():
                 self.cliente.publish("Fecha",str(temp[7]))
                 self.cliente.publish("Hora",str(temp[8]))
                 print("Envio exitoso!")
+                self.led1.value(not self.led1.value())
             except:
                 print("error de envio mediante wifi")
                 self.t=0
+        if AlertFlag:
+            AlertFlag=False
+            self.AlertSms()
+    
+
+        
             
+    #Envio de datos mediante Bluetooth
     def envioBt(self,temp):
+        global config_flag
         try:
-            buart.write("EMA01 dice: "+str(temp)+"\n")
+            if not config_flag:
+                buart.write("EMA01 dice: "+str(temp)+"\n")
         except:
             print("error de envio")
             self.t=0
