@@ -44,7 +44,7 @@ class BLEUART:
     def __init__(self, ble, name, rxbuf=1000):
         self._ble = ble
         self._ble.active(True)
-        self._ble.config(mtu=200)
+        #self._ble.config(mtu=200)
         self._ble.irq(self._irq)
         ((self._tx_handle, self._rx_handle),
          ) = self._ble.gatts_register_services((_UART_SERVICE,))
