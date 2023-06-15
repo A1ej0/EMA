@@ -53,7 +53,7 @@ def boton():
         messagebox.showinfo(message="puerto invalido, se requiere un numero",title="puerto invalido")
     else:      
         file = open("ema.conf","w")
-        datos=[str(textWifi.get())+"\n",str(textClaveWifi.get())+"\n",str(textMQTTserver.get())+"\n",str(textpuertoMQTT.get())+"\n",str(textUsuarioMQTT.get())+"\n",str(textClaveMQTT.get())+"\n"]
+        datos=[str(textWifi.get())+"\n",str(textClaveWifi.get())+"\n",str(textTelefono.get())+"\n",str(textMQTTserver.get())+"\n",str(textpuertoMQTT.get())+"\n",str(textUsuarioMQTT.get())+"\n",str(textClaveMQTT.get())+"\n"]
         file.writelines(datos)
         file.close()
         messagebox.showinfo(message="Archivo de configuracion del dispositivo creado, por favor copiar a la raiz de la memoria",title="proceso exitoso")
