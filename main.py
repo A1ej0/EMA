@@ -8,7 +8,7 @@ dispositivos = EMA.escaneoInicial()
 EMA.calibracionTemp()
 
 temp= 0
-datos = [0,0,0,0,0,0,0,0,0]
+datos = [0,0,0,0,0,0,0,0,0,0]
 lecturaGPS2 = [0,0,0,0]
 acel=[0,0,0]
 gauss=0
@@ -36,9 +36,11 @@ while True:
         gauss = EMA.Pluviometro()
         #print(EMA.Pluviometro())
     fechaHora = EMA.rtc()
+    distanci=EMA.distancia()
+    calidad=EMA.calidadAgua()
     hora=str(fechaHora[4])+":"+str(fechaHora[5])+":"+str(fechaHora[6])
     fecha=str(fechaHora[2])+"/"+str(fechaHora[1])+"/"+str(fechaHora[0])       
-    datos= [temp,acel[0],acel[1],acel[2],gauss,lecturaGPS2[0],lecturaGPS2[1],fecha,hora]
+    datos= [temp,distanci,acel[1],acel[2],gauss,lecturaGPS2[0],lecturaGPS2[1],fecha,hora,calidad]
     
     for i in range(len(datos)):
         textoRaw=textoRaw+" , "+str(datos[i])

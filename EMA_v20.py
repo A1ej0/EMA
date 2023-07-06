@@ -27,9 +27,12 @@ claveMqtt=""
 telefono=0
 AlertFlag=False
 mensajeAlerta = "Alerta Geologica"
+limite=0
+lectura=0
+
 
 def on_RX():
-    global wifi,claveWifi,server,puerto,user,claveMqtt,telefono,p,config_flag, AlertFlag
+    global wifi,claveWifi,server,puerto,user,claveMqtt,telefono,p,config_flag, AlertFlag, limite
     
     rxbuffer=buart.read().decode().rstrip('\x00')
     rxbuffer=rxbuffer.replace("\n","")
@@ -111,6 +114,14 @@ def on_RX():
         if element[0]=="z":
             AlertFlag=True
             print("Alerta!!!")
+        if element[0]=="y":
+            element=element[1:]
+            element=element.replace("\n","")
+            element=element.replace("\r","")
+            print("limite cambiado")
+            print(element)
+            limite=str(element)
+            p=0
 
     print(rxbuffer)
 #     for i in range(len(rxbuffer)):
@@ -249,6 +260,7 @@ class EMA():
         #escaneo dispositivos i2c
         devices = self.bus.scan()
         if 104 in devices:
+            time.sleep(0.1)
             self.acel = MPU9250(self.bus)
         j=0
         for i in self.sensores:
@@ -422,7 +434,14 @@ class EMA():
             logf.close()
         except:
             pass
-
+    #Distancia}
+    def distancia(self):
+        try:
+            dist=self.bus.readfrom(80, 4).decode().strip("\x00")
+            dist=int(dist)-100
+        except:
+            dist=0
+        return dist
     #Alerta mediante SMS
     def AlertSms(self):
         global telefono, mensajeAlerta
@@ -450,6 +469,7 @@ class EMA():
         miRed = network.WLAN(network.STA_IF)
         self.temp = temp
         if not miRed.isconnected() and p==0:
+            
             self.cliente = MQTTClient(client_id=str(user),server=str(server),port=int(puerto),user=str(user),password=str(claveMqtt),keepalive=60)
             self.led3.value(1)
             self.led2.value(0)
@@ -464,30 +484,68 @@ class EMA():
             try:
                 for i in range(10):
                     if not miRed.isconnected():
+                        self.display.fill(0)
+                        self.display.text("conectando wifi:",1,1,1)
+                        self.display.text(str(wifi) +" " + str(i+1)+'/10...',1,20,1)
+                        self.display.show()
                         self.led3.value(1)
                         self.led2.value(1)
-                        print('Conectando a la red', wifi +"… " + str(i+1)+'/10...')
+                        print('Conectando a la red', wifi +"... " + str(i+1)+'/10...')
                         time.sleep(0.5)
                 if miRed.isconnected():
                     self.led3.value(0)
                     self.led2.value(1)
+                    self.display.fill(0)
+                    self.display.text("Conexion exitosa!",1,20,1)
+                    self.display.show()
                     print ("Conexión exitosa!")
                     print('Datos de la red (IP/netmask/gw/DNS):', miRed.ifconfig())
                 else:
+                    self.display.fill(0)
+                    self.display.text("continue por",1,1,1)
+                    self.display.text("Bluetooth",1,20,1)
+                    self.display.show()
                     print("red Wifi no disponible")
+                    time.sleep(5)
             except:
                 pass
             p=1
+        if not miRed.isconnected():
+            self.display.fill(0)
+            self.display.text("wifi NO, MQTT NO",1,1,1)
+            self.display.text("mediciones",1,15,1)
+            #self.display.text("Distancia: "+ str(temp[9]),1,28,1)
+            self.display.text("Calidad: "+ str(temp[9]),1,28,1)
+            #self.display.text("Distancia: "+str(temp[1]),1,37,1)
+            self.display.text("Temperatura:"+str(temp[0]),1,46,1)
+            #self.display.text("Acel_Z: "+str(temp[3]),1,55,1)
+            self.display.show()
         if self.t==0 and miRed.isconnected():
-            time.sleep(1)
+            time.sleep(0.3)
+            self.display.fill(0)
+            self.display.text("wifi OK, MQTT NO",1,1,1)
+            self.display.text("mediciones",1,15,1)
+            self.display.text("Distancia: "+ str(temp[9]),1,28,1)
+            self.display.text("Acel_X: "+str(temp[1]),1,37,1)
+            self.display.text("Acel_Y: "+str(temp[2]),1,46,1)
+            self.display.text("Acel_Z: "+str(temp[3]),1,55,1)
+            self.display.show()
             try: 
                 print("Conectando MQTT...")
                 self.cliente.connect()
                 self.t=1
             except:
                 print("error de conexion MQTT...")
-        if miRed.isconnected():
-            try:    
+        if miRed.isconnected() and self.t==1:
+            try:
+                self.display.fill(0)
+                self.display.text("wifi OK, MQTT OK",1,1,1)
+                self.display.text("mediciones",1,15,1)
+                self.display.text("Distancia: "+ str(temp[9]),1,28,1)
+                self.display.text("Acel_X: "+str(temp[1]),1,37,1)
+                self.display.text("Acel_Y: "+str(temp[2]),1,46,1)
+                self.display.text("Acel_Z: "+str(temp[3]),1,55,1)
+                self.display.show()
                 self.cliente.publish("temp",str(temp[0]))
                 self.cliente.publish("acelX",str(temp[1]))
                 self.cliente.publish("acelY",str(temp[2]))
@@ -502,13 +560,11 @@ class EMA():
             except:
                 print("error de envio mediante wifi")
                 self.t=0
+    #Envio de alerta mediante sms      
         if AlertFlag:
-            AlertFlag=False
             self.AlertSms()
+            AlertFlag=False
     
-
-        
-            
     #Envio de datos mediante Bluetooth
     def envioBt(self,temp):
         global config_flag
@@ -519,3 +575,12 @@ class EMA():
             print("error de envio")
             self.t=0
         
+    def calidadAgua(self):
+        global lectura
+        try:
+            lectura = self.bus.readfrom(40,4).decode("utf-8").strip("\x00")
+            lectura = int(lectura)-100
+            return lectura
+        except:
+            return lectura
+            
