@@ -12,6 +12,7 @@ from mpu9250 import MPU9250
 import ds1302
 import bluetooth
 from BLE import BLEUART
+import webrepl
 
 bname="EMA01"
 ble=bluetooth.BLE()
@@ -24,6 +25,7 @@ server=""
 puerto=0
 user=""
 claveMqtt=""
+IPport=""
 telefono=0
 AlertFlag=False
 mensajeAlerta = "Alerta Geologica"
@@ -32,14 +34,14 @@ lectura=0
 
 
 def on_RX():
-    global wifi,claveWifi,server,puerto,user,claveMqtt,telefono,p,config_flag, AlertFlag, limite
+    global wifi,claveWifi,server,puerto,user,claveMqtt,telefono,p,config_flag, AlertFlag, limite,IPport
     
     rxbuffer=buart.read().decode().rstrip('\x00')
     rxbuffer=rxbuffer.replace("\n","")
     rxbuffer=rxbuffer.replace("\r","")
         #config
     if rxbuffer == "EMAconfig":
-        config = [wifi,claveWifi,server,puerto,user,claveMqtt]
+        config = [wifi,claveWifi,server,puerto,user,claveMqtt,IPport]
         print(config)
         buart.write("Config: "+str(config)+"\n")
         config_flag=True
@@ -251,7 +253,7 @@ class EMA():
         
     def escaneoInicial(self):
         
-        global wifi,claveWifi,server,puerto,user,claveMqtt,telefono
+        global wifi,claveWifi,server,puerto,user,claveMqtt,telefono,IPport
         
         self.logoEMA()
         time.sleep(1)
@@ -463,7 +465,7 @@ class EMA():
 
     #Ajustes de envio de datos, wifi y MQTT
     def envioDatos (self,temp):
-        global wifi,claveWifi, AlertFlag
+        global wifi,claveWifi,server,puerto,user,claveMqtt,telefono,IPport
         n=0
         global p
         miRed = network.WLAN(network.STA_IF)
@@ -500,6 +502,12 @@ class EMA():
                     self.display.show()
                     print ("Conexión exitosa!")
                     print('Datos de la red (IP/netmask/gw/DNS):', miRed.ifconfig())
+                    IPport=miRed.ifconfig()[0]+":8266"
+                    webrepl.start()
+                    config = [wifi,claveWifi,server,puerto,user,claveMqtt,IPport]
+                    print(config)
+                    buart.write("Config: "+str(config)+"\n")
+                    
                 else:
                     self.display.fill(0)
                     self.display.text("continue por",1,1,1)
