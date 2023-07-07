@@ -52,7 +52,7 @@ def on_RX():
     #buart.write("EMA01 dice: "+rxbuffer+"\n")
     lista=rxbuffer.split(',')
     for element in lista:
-        if element[0]=="w":
+        if element[0]=="w" and len(element) != 0:
             element=element[1:]
             element=element.replace("\n","")
             element=element.replace("\r","")
@@ -61,7 +61,7 @@ def on_RX():
             wifi=str(element)
             p=0
         
-        if element[0]=="c":
+        if element[0]=="c" and len(element) != 0:
             element=element[1:]
             element=element.replace("\n","")
             element=element.replace("\r","")
@@ -70,7 +70,7 @@ def on_RX():
             claveWifi=str(element)
             p=0
             
-        if element[0]=="s":
+        if element[0]=="s" and len(element) != 0:
             element=element[1:]
             element=element.replace("\n","")
             element=element.replace("\r","")
@@ -79,7 +79,7 @@ def on_RX():
             server=str(element)
             p=0
             
-        if element[0]=="p":
+        if element[0]=="p" and len(element) != 0:
             element=element[1:]
             element=element.replace("\n","")
             element=element.replace("\r","")
@@ -88,7 +88,7 @@ def on_RX():
             puerto=int(element)
             p=0
             
-        if element[0]=="u":
+        if element[0]=="u" and len(element) != 0:
             element=element[1:]
             element=element.replace("\n","")
             element=element.replace("\r","")
@@ -97,7 +97,7 @@ def on_RX():
             user=str(element)
             p=0
             
-        if element[0]=="m":
+        if element[0]=="m" and len(element) != 0:
             element=element[1:]
             element=element.replace("\n","")
             element=element.replace("\r","")
@@ -105,7 +105,7 @@ def on_RX():
             print(element)
             claveMqtt=str(element)
             p=0
-        if element[0]=="t":
+        if element[0]=="t" and len(element) != 0:
             element=element[1:]
             element=element.replace("\n","")
             element=element.replace("\r","")
@@ -113,10 +113,11 @@ def on_RX():
             print(element)
             telefono=str(element)
             p=0
-        if element[0]=="z":
+        if element[0]=="z" and len(element) != 0:
             AlertFlag=True
             print("Alerta!!!")
-        if element[0]=="y":
+            p=0
+        if element[0]=="y" and len(element) != 0:
             element=element[1:]
             element=element.replace("\n","")
             element=element.replace("\r","")
@@ -465,7 +466,7 @@ class EMA():
 
     #Ajustes de envio de datos, wifi y MQTT
     def envioDatos (self,temp):
-        global wifi,claveWifi,server,puerto,user,claveMqtt,telefono,IPport
+        global wifi,claveWifi,server,puerto,user,claveMqtt,telefono,IPport,AlertFlag, limite
         n=0
         global p
         miRed = network.WLAN(network.STA_IF)
@@ -504,6 +505,7 @@ class EMA():
                     print('Datos de la red (IP/netmask/gw/DNS):', miRed.ifconfig())
                     IPport=miRed.ifconfig()[0]+":8266"
                     webrepl.start()
+                    webrepl.start(password="EMA01")
                     config = [wifi,claveWifi,server,puerto,user,claveMqtt,IPport]
                     print(config)
                     buart.write("Config: "+str(config)+"\n")
