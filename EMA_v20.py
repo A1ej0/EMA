@@ -12,12 +12,12 @@ from mpu9250 import MPU9250
 import ds1302
 import bluetooth
 from BLE import BLEUART
-import webrepl
 
 bname="EMA01"
 ble=bluetooth.BLE()
 buart=BLEUART(ble,bname)
 p=0
+q=0
 config_flag=False
 wifi = ""
 claveWifi=""
@@ -27,14 +27,19 @@ user=""
 claveMqtt=""
 IPport=""
 telefono=0
+Tel0=0
+Tel1=0
+Tel2=0
+Tel3=0
 AlertFlag=False
 mensajeAlerta = "Alerta Geologica"
 limite=0
 lectura=0
+k_value=1.0
 
 
 def on_RX():
-    global wifi,claveWifi,server,puerto,user,claveMqtt,telefono,p,config_flag, AlertFlag, limite,IPport
+    global wifi,claveWifi,server,puerto,user,claveMqtt,telefono,p,config_flag, AlertFlag, limite,IPport,q,k_value,Tel0,Tel1,Tel2,Tel3,k_value
     
     rxbuffer=buart.read().decode().rstrip('\x00')
     rxbuffer=rxbuffer.replace("\n","")
@@ -125,7 +130,14 @@ def on_RX():
             print(element)
             limite=str(element)
             p=0
-
+        if element[0]=="k":
+            element=element[1:]
+            element=element.replace("\n","")
+            element=element.replace("\r","")
+            print("Valor K Cambiado")
+            print(element)
+            k_value=str(element)
+            q=1
     print(rxbuffer)
 #     for i in range(len(rxbuffer)):
 #          print(ord(rxbuffer[i]))
@@ -385,14 +397,17 @@ class EMA():
         
     #Captura Temperatura
     def Temperature(self):
-        self.bus.writeto_mem(119, 0xF4, bytearray([0x2E]))
-        time.sleep_ms(5)
-        self.UT_raw = self.bus.readfrom_mem(119, 0xF6, 2)
-        UT = unp('>H', self.UT_raw)[0]
-        X1 = (UT-self._AC6)*self._AC5/2**15
-        X2 = self._MC*2**11/(X1+self._MD)
-        self.B5_raw = X1+X2
-        return (((X1+X2)+8)/2**4)/10
+        try:
+            self.bus.writeto_mem(119, 0xF4, bytearray([0x2E]))
+            time.sleep_ms(5)
+            self.UT_raw = self.bus.readfrom_mem(119, 0xF6, 2)
+            UT = unp('>H', self.UT_raw)[0]
+            X1 = (UT-self._AC6)*self._AC5/2**15
+            X2 = self._MC*2**11/(X1+self._MD)
+            self.B5_raw = X1+X2
+            return (((X1+X2)+8)/2**4)/10
+        except:
+            return -1
     
     #Captura Aceleracion
     def Acelerometro(self):
@@ -436,7 +451,7 @@ class EMA():
             logf.write(str(temp)+"\n\r")
             logf.close()
         except:
-            pass
+            print("error SD")
     #Distancia}
     def distancia(self):
         try:
@@ -586,11 +601,19 @@ class EMA():
             self.t=0
         
     def calidadAgua(self):
-        global lectura
+        global lectura,k_value,q
+        print(q)
+        if q==1:
+            try:
+                self.bus.writeto(40, str(k_value))
+                q=0
+                print("valor k enviado %f",k_value)
+            except:
+                print("error al cambiar valor K de calibracion")
         try:
             lectura = self.bus.readfrom(40,4).decode("utf-8").strip("\x00")
             lectura = int(lectura)-100
             return lectura
         except:
-            return lectura
+            return -1
             
