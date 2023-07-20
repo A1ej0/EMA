@@ -55,7 +55,7 @@ def on_RX():
         config_flag=False
     
     #buart.write("EMA01 dice: "+rxbuffer+"\n")
-    lista=rxbuffer.split(',')
+    lista=rxbuffer.split(';')
     for element in lista:
         if element[0]=="w" and len(element) != 0:
             element=element[1:]
