@@ -39,14 +39,14 @@ k_value=1.0
 
 
 def on_RX():
-    global wifi,claveWifi,server,puerto,user,claveMqtt,telefono,p,config_flag, AlertFlag, limite,IPport,q,k_value,Tel0,Tel1,Tel2,Tel3,k_value
+    global wifi,claveWifi,server,puerto,user,claveMqtt,telefono,p,config_flag, AlertFlag, limite,IPport,q,k_value,Tel0,Tel1,Tel2,Tel3
     
     rxbuffer=buart.read().decode().rstrip('\x00')
     rxbuffer=rxbuffer.replace("\n","")
     rxbuffer=rxbuffer.replace("\r","")
         #config
     if rxbuffer == "EMAconfig":
-        config = [wifi,claveWifi,server,puerto,user,claveMqtt,IPport]
+        config = [wifi,claveWifi,server,puerto,user,claveMqtt,IPport,k_value,Tel0,Tel1,Tel2,Tel3]
         print(config)
         buart.write("Config: "+str(config)+"\n")
         config_flag=True
