@@ -51,6 +51,7 @@ class SIM800LMQTT():
         self.uart.write(message)
         print(self.uart.read(100))
         print(self.uart.read(100))
+        time.sleep(3)
         
     def send_command(self,command):
   
@@ -70,6 +71,7 @@ class SIM800LMQTT():
         self.uart.write(message)
         print(self.uart.read(100))
         print(self.uart.read(100))
+        time.sleep(3)
         
     def disconnect(self):
         self.send_command('AT+CIPSEND')
@@ -77,6 +79,7 @@ class SIM800LMQTT():
         self.uart.write(message)
         print(self.uart.read(100))
         print(self.uart.read(100))
+        time.sleep(3)
         self.send_command("AT+CIPSHUT")
         
         
