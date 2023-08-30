@@ -1,30 +1,35 @@
 from ustruct import unpack as unp
 from machine import I2C, Pin, SPI, UART, ADC
+from ST7735 import TFT
+from sysfont import sysfont
 import network, urequests
 import math
 import time
 import os
 import machine
 from simple import MQTTClient
-import ssd1306
+#import ssd1306
 import framebuf
 from mpu9250 import MPU9250
-import ds1302
+import ds1307
 import bluetooth
 from BLE import BLEUART
+import random
+
 
 bname="EMA01"
 ble=bluetooth.BLE()
 buart=BLEUART(ble,bname)
 p=0
-q=0
+q=1
 config_flag=False
-wifi = ""
-claveWifi=""
-server=""
-puerto=0
-user=""
-claveMqtt=""
+wifi = "SGC"
+claveWifi="******"
+host="139.177.103.44"
+server=host
+puerto="1883"
+user="EMA"
+claveMqtt="SGCEMA"
 IPport=""
 telefono=0
 Tel0=0
@@ -36,6 +41,11 @@ mensajeAlerta = "Alerta Geologica"
 limite=0
 lectura=0
 k_value=1.0
+contador=0
+apn="internet.comcel.com.co"
+temporal=""
+
+
 
 
 def on_RX():
@@ -146,9 +156,18 @@ def on_RX():
         print("Hola")
     if(rxbuffer=="Adios"):
         print("Adios")
+        
+        
+def on_Disconect():
+    print("APP Desconectada")
+    global config_flag
+    
+    config_flag=False
+    
 
 # register IRQ handler
 buart.irq(handler=on_RX)
+buart.discnthandler(handler=on_Disconect)
 
 class EMA():
     
@@ -160,19 +179,19 @@ class EMA():
         self.t=0
         #i2c_init
         self.bus = I2C(1, scl=Pin(22), sda=Pin(21), freq=100000)
-        
+        self.uart = UART(2, 115200, timeout=2000, rx=17, tx=16)
         #oled_init
-        self.hspi = SPI(1, 10000000, sck=Pin(14), mosi=Pin(13), miso=Pin(12))
+        #self.hspi = SPI(1, 10000000, sck=Pin(14), mosi=Pin(13), miso=Pin(12))
+        self.hspi = SPI(1, baudrate=20000000, polarity=0, phase=0, sck=Pin(14), mosi=Pin(13), miso=Pin(12))
         dc = Pin(4)    # data/command
         rst = Pin(2)   # reset
         cs = Pin(15)   # chip select, some modules do not have a pin for this
-        self.display = ssd1306.SSD1306_SPI(128, 64, self.hspi, dc, rst, cs)
+        self.display = TFT(self.hspi,4,2,15)
+        self.display.initr()
+        self.display.rgb(True)
         
         #RTC_init
-        self.ds = ds1302.DS1302(Pin(12),Pin(33),Pin(32))
-        
-        #UART_init
-        self.uart1 = UART(2, baudrate=115200, tx=17, rx=16)
+        self.ds = ds1307.DS1307(self.bus)
         
         #HALL_init
         self.hall = ADC(Pin(34))
@@ -197,6 +216,93 @@ class EMA():
         119:"Temperatura"
         }
     #Funcion para errores "criticos"
+    def publish(self,topic,data):
+        global temporal
+        line=None
+        self.send_command('AT+CIPSEND')
+        time.sleep(0.5)
+        message=bytearray(len(topic).to_bytes(2, 'big'))+bytearray(bytes(topic,"ascii"))+bytearray(bytes(data,"ascii"))
+        message=bytearray(b'\x30')+bytearray(len(message).to_bytes(1, 'big'))+message+bytearray(b'\x1A')
+        self.uart.write(message)
+        line=str(self.uart.read(100))
+        print(line)
+        time.sleep(0.2)
+        line=line+str(self.uart.read(100))
+        print(line)
+        temporal=temporal+str(line)
+        
+    def disconnect(self):
+        self.send_command('AT+CIPSEND')
+        time.sleep(0.2)
+        message=b"\xe0\0\x1a"        
+        self.uart.write(message)
+        print(self.uart.read(100))
+        time.sleep(1)
+        self.send_command("AT+CIPSHUT")
+        time.sleep(0.2)
+        
+    def send_command(self,command):
+        line=None
+        line2=None
+        if command=='AT+CIPSEND':
+            line2="OKi"
+        command = command + '\r\n'
+        self.uart.write(command)
+        while line==None and line2==None:
+            line = self.uart.read(100)
+        if line:
+            try:
+                line = line.decode('utf-8')
+                print(line.replace('\r\n','\n'))
+            except:
+                print(str(line))
+        else:
+            print('Hmmm...')
+            
+    def connectSIM(self):
+        global apn,host,puerto
+        self.apn=apn
+        self.host=host
+        self.port=puerto
+        self.send_command("AT")
+        time.sleep(3)
+        self.send_command('AT+CPIN?')
+        time.sleep(3)
+        self.send_command("AT+CIPSHUT")
+        time.sleep(3)
+        self.send_command('AT+CSTT="'+self.apn+'"')
+        time.sleep(3)
+        self.send_command('AT+CIICR')
+        time.sleep(3)
+        self.send_command('AT+CIFSR')
+        time.sleep(3)
+        self.send_command('AT+CIPSPRT=0')
+        time.sleep(3)
+        self.send_command('AT+CIPSTART="TCP","'+self.host+'","'+str(self.port)+'"')
+        time.sleep(15)
+        
+    def connectS(self):
+        global user,claveMqtt
+        ra=random.randint(0,50)
+        ra=ra*10+ra
+        ID=user + str(ra)
+        self.clientID=ID
+        self.user=user
+        self.password=claveMqtt
+        line=None
+        self.connectSIM()
+        print("conectado a GPRS")
+        self.uart.write('AT+CIPSEND\r\n')
+        message=bytearray(b'\x00\x04')+bytearray(bytes("MQTT","ascii"))+bytearray(b'\x04\xc2')
+        message=message+bytearray(b'\x00\x3C')
+        message=message+bytearray(len(self.clientID).to_bytes(2, 'big'))+bytearray(bytes(self.clientID,"ascii"))
+        message=message+bytearray(len(self.user).to_bytes(2, 'big'))+bytearray(bytes(self.user,"ascii"))
+        message=message+bytearray(len(self.password).to_bytes(2, 'big'))+bytearray(bytes(self.password,"ascii"))
+        message=bytearray(b'\x10')+bytearray(len(message).to_bytes(1, 'big'))+message+bytearray(b'\x1A')
+        time.sleep(0.2)
+        self.uart.write(message)
+        print("intentando conectar a MQTT...")
+        time.sleep(5)
     def error(self,a):
         b=0
         c=1
@@ -215,8 +321,8 @@ class EMA():
                 b=1
             else:
                 c=0
-                self.display.fill(0)
-                self.display.show()
+                #self.display.fill(0)
+                #self.display.show()
             if b==1:
                 for i in range(15):            
                     with open('anim/'+str(i)+'.pbm', 'rb') as f:
@@ -225,16 +331,16 @@ class EMA():
                         f.readline() # Dimensions
                         data = bytearray(f.read())
                     fbuf = framebuf.FrameBuffer(data, 128, 64, framebuf.MONO_HLSB)
-                    self.display.invert(0)
-                    self.display.blit(fbuf, 0, 0)
-                    self.display.text("EMA",1,1,1)
-                    self.display.text("V.1.0",90,1,1)
-                    self.display.text("error",45,30,1)
-                    self.display.text(msg+" no existe",1,56,1)
-                    self.display.show()
+                    #self.display.invert(0)
+                    #self.display.blit(fbuf, 0, 0)
+                    #self.display.text("EMA",1,1,1)
+                    #self.display.text("V.1.0",90,1,1)
+                    #self.display.text("error",45,30,1)
+                    #self.display.text(msg+" no existe",1,56,1)
+                    #self.display.show()
                     time.sleep(0.1)
-                self.display.fill(0)
-                self.display.show()
+                #self.display.fill(0)
+                #self.display.show()
                 b=0
                 time.sleep(2)
                 
@@ -246,12 +352,12 @@ class EMA():
                 f.readline() # Dimensions
                 data = bytearray(f.read())
             fbuf = framebuf.FrameBuffer(data, 128, 64, framebuf.MONO_HLSB)
-            self.display.invert(0)
-            self.display.blit(fbuf, 0, 0)
-            self.display.show()
+            #self.display.invert(0)
+            #self.display.blit(fbuf, 0, 0)
+            #self.display.show()
             time.sleep(0.1)
-        self.display.fill(0)
-        self.display.show()
+        #self.display.fill(0)
+        #self.display.show()
         
     def logoEMA(self):
         with open('anim/logo.pbm', 'rb') as f:
@@ -260,23 +366,30 @@ class EMA():
             f.readline() # Dimensions
             data = bytearray(f.read())
         fbuf = framebuf.FrameBuffer(data, 128, 64, framebuf.MONO_HLSB)
-        self.display.invert(0)
-        self.display.blit(fbuf, 0, 0)
-        self.display.show()
+        #self.display.invert(0)
+        #self.display.blit(fbuf, 0, 0)
+        #self.display.show()
         
     def escaneoInicial(self):
         
         global wifi,claveWifi,server,puerto,user,claveMqtt,telefono,IPport
-        
-        self.logoEMA()
+        self.display.rotation(1)
+        self.display.fill(self.display.PURPLE)
+        self.display.text((20, 0), "SGC", self.display.RED, sysfont, 3)
+        self.display.text((70, 30), "EMA", self.display.GREEN, sysfont, 2)
+        self.display.text((100, 60), "V 2.0", self.display.BLUE, sysfont, 2)
+        #self.logoEMA()
         time.sleep(1)
-        self.limpiarOLED()
-        self.escribirOLED("Iniciando...",5,30)
+        #self.limpiarOLED()
+        #self.escribirOLED("Iniciando...",5,30)
         #escaneo dispositivos i2c
         devices = self.bus.scan()
         if 104 in devices:
             time.sleep(0.1)
-            self.acel = MPU9250(self.bus)
+            try:
+                self.acel = MPU9250(self.bus)
+            except:
+                pass
         j=0
         for i in self.sensores:
             print(i)
@@ -297,10 +410,10 @@ class EMA():
             print("pluviometro no disponible")
 
         #Comprobacion de Modulo SIM Disponible
-        self.uart1.write("AT+CSQ\r\n")
+        self.uart.write("AT+CSQ\r\n")
         a=1
         while a!=0:
-            read=self.uart1.read()
+            read=self.uart.read()
             if read==None and a<=10:
                 print("prueba conexion modulo SIM N°: "+ str(a))
                 a=a+1
@@ -349,12 +462,12 @@ class EMA():
             self.errores_criticos[2]=1
         
         #Ajustes TEMPORALES de prueba
-        wifi = "Alejo"
-        claveWifi="testasdfa"
-        server="test"
-        puerto=43423
+        wifi = "Alejandro"
+        claveWifi="Alejandro1993"
+        server="139.177.103.44"
+        puerto=1883
         user="EMA"
-        claveMqtt="EMASGC"
+        claveMqtt="SGCEMA"
         
         #Ajustes de parametros de MQTT
         self.cliente = MQTTClient(client_id=str(user),server=str(server),port=int(puerto),user=str(user),password=str(claveMqtt),keepalive=60)
@@ -365,12 +478,13 @@ class EMA():
         print(self.errores_criticos)
         for i in range(len(devices)):
             print(str(i+1)+". "+str(self.sensores.get(devices[i])))
-        if 1 in self.errores_criticos:  
-            self.error(self.errores_criticos)
-        self.limpiarOLED()
-        self.escribirOLED("Completo",5,30)
+        if 1 in self.errores_criticos:
+            pass
+            #self.error(self.errores_criticos)
+        #self.limpiarOLED()
+        #self.escribirOLED("Completo",5,30)
         time.sleep(1)
-        self.animLoading()
+        #self.animLoading()
         return(self.dispositivos)          
     #Calibracion temperatura
     def calibracionTemp(self):
@@ -411,12 +525,14 @@ class EMA():
     
     #Captura Aceleracion
     def Acelerometro(self):
-        self.x=[]
-        self.x.append(self.acel.acceleration[0])
-        self.x.append(self.acel.acceleration[1])
-        self.x.append(self.acel.acceleration[2])
-        return(self.x)
-    
+        try:
+            self.x=[]
+            self.x.append(self.acel.acceleration[0])
+            self.x.append(self.acel.acceleration[1])
+            self.x.append(self.acel.acceleration[2])
+            return(self.x)
+        except:
+            return [0,0,0]
     #Captura Pluviometro
     def Pluviometro(self):
         self.gauss = round(((round(self.hall.read_uv()/1000000,2)/3.3)*2000)-1000,2)
@@ -424,18 +540,23 @@ class EMA():
     
     #Retorno de hora y fecha RTC
     def rtc(self):
-        return(self.ds.date_time())
+        try:
+            return(self.ds.datetime())
+        except:
+            return [0,0,0,0,0,0,0,0]
     
     #Funciones de OLED
     def escribirOLED(self,texto,x,y):
         try:
-            self.display.text(str(texto),x,y,1)
-            self.display.show()
+            pass
+            #self.display.text(str(texto),x,y,1)
+            #self.display.show()
         except:
             pass
     def limpiarOLED(self):
-        self.display.fill(0)
-        self.display.show()
+        pass
+        #self.display.fill(0)
+        #self.display.show()
     
     #Funciones SD_card
     def leerSD(self):
@@ -448,10 +569,11 @@ class EMA():
         try:
             data = "/sd/temp.csv"
             logf = open(data,"a")
-            logf.write(str(temp)+"\n\r")
+            logf.write(str(temp)+"\r\n")
             logf.close()
         except:
             print("error SD")
+            os.mount(self.sd, "/sd")
     #Distancia}
     def distancia(self):
         try:
@@ -481,12 +603,11 @@ class EMA():
 
     #Ajustes de envio de datos, wifi y MQTT
     def envioDatos (self,temp):
-        global wifi,claveWifi,server,puerto,user,claveMqtt,telefono,IPport,AlertFlag, limite
+        global wifi,claveWifi,server,puerto,user,claveMqtt,telefono,IPport,AlertFlag, limite, p
         n=0
-        global p
         miRed = network.WLAN(network.STA_IF)
         self.temp = temp
-        if not miRed.isconnected() and p==0:
+        if p==0:
             
             self.cliente = MQTTClient(client_id=str(user),server=str(server),port=int(puerto),user=str(user),password=str(claveMqtt),keepalive=60)
             self.led3.value(1)
@@ -502,10 +623,10 @@ class EMA():
             try:
                 for i in range(10):
                     if not miRed.isconnected():
-                        self.display.fill(0)
-                        self.display.text("conectando wifi:",1,1,1)
-                        self.display.text(str(wifi) +" " + str(i+1)+'/10...',1,20,1)
-                        self.display.show()
+                        #self.display.fill(0)
+                        #self.display.text("conectando wifi:",1,1,1)
+                        #self.display.text(str(wifi) +" " + str(i+1)+'/10...',1,20,1)
+                        #self.display.show()
                         self.led3.value(1)
                         self.led2.value(1)
                         print('Conectando a la red', wifi +"... " + str(i+1)+'/10...')
@@ -513,48 +634,49 @@ class EMA():
                 if miRed.isconnected():
                     self.led3.value(0)
                     self.led2.value(1)
-                    self.display.fill(0)
-                    self.display.text("Conexion exitosa!",1,20,1)
-                    self.display.show()
+                    #self.display.fill(0)
+                    #self.display.text("Conexion exitosa!",1,20,1)
+                    #self.display.show()
                     print ("Conexión exitosa!")
                     print('Datos de la red (IP/netmask/gw/DNS):', miRed.ifconfig())
                     IPport=miRed.ifconfig()[0]+":8266"
                     webrepl.start()
-                    webrepl.start(password="EMA01")
+                    webrepl.start(password="EMASGC")
                     config = [wifi,claveWifi,server,puerto,user,claveMqtt,IPport,k_value,Tel0,Tel1,Tel2,Tel3]
                     print(config)
                     buart.write("Config: "+str(config)+"\n")
                     
                 else:
-                    self.display.fill(0)
-                    self.display.text("continue por",1,1,1)
-                    self.display.text("Bluetooth",1,20,1)
-                    self.display.show()
+                    #self.display.fill(0)
+                    #self.display.text("continue por",1,1,1)
+                    #self.display.text("Bluetooth",1,20,1)
+                    #self.display.show()
                     print("red Wifi no disponible")
                     time.sleep(5)
             except:
                 pass
             p=1
         if not miRed.isconnected():
-            self.display.fill(0)
-            self.display.text("wifi NO, MQTT NO",1,1,1)
-            self.display.text("mediciones",1,15,1)
-            #self.display.text("Distancia: "+ str(temp[9]),1,28,1)
-            self.display.text("Calidad: "+ str(temp[9]),1,28,1)
-            #self.display.text("Distancia: "+str(temp[1]),1,37,1)
-            self.display.text("Temperatura:"+str(temp[0]),1,46,1)
-            #self.display.text("Acel_Z: "+str(temp[3]),1,55,1)
-            self.display.show()
+            pass
+            #self.display.fill(0)
+            #self.display.text("wifi NO, MQTT NO",1,1,1)
+            #self.display.text("mediciones",1,15,1)
+            ##self.display.text("Distancia: "+ str(temp[9]),1,28,1)
+            #self.display.text("Calidad: "+ str(temp[9]),1,28,1)
+            ##self.display.text("Distancia: "+str(temp[1]),1,37,1)
+            #self.display.text("Temperatura:"+str(temp[0]),1,46,1)
+            ##self.display.text("Acel_Z: "+str(temp[3]),1,55,1)
+            #self.display.show()
         if self.t==0 and miRed.isconnected():
             time.sleep(0.3)
-            self.display.fill(0)
-            self.display.text("wifi OK, MQTT NO",1,1,1)
-            self.display.text("mediciones",1,15,1)
-            self.display.text("Distancia: "+ str(temp[9]),1,28,1)
-            self.display.text("Acel_X: "+str(temp[1]),1,37,1)
-            self.display.text("Acel_Y: "+str(temp[2]),1,46,1)
-            self.display.text("Acel_Z: "+str(temp[3]),1,55,1)
-            self.display.show()
+            #self.display.fill(0)
+            #self.display.text("wifi OK, MQTT NO",1,1,1)
+            #self.display.text("mediciones",1,15,1)
+            #self.display.text("Distancia: "+ str(temp[9]),1,28,1)
+            #self.display.text("Acel_X: "+str(temp[1]),1,37,1)
+            #self.display.text("Acel_Y: "+str(temp[2]),1,46,1)
+            #self.display.text("Acel_Z: "+str(temp[3]),1,55,1)
+            #self.display.show()
             try: 
                 print("Conectando MQTT...")
                 self.cliente.connect()
@@ -563,14 +685,15 @@ class EMA():
                 print("error de conexion MQTT...")
         if miRed.isconnected() and self.t==1:
             try:
-                self.display.fill(0)
-                self.display.text("wifi OK, MQTT OK",1,1,1)
-                self.display.text("mediciones",1,15,1)
-                self.display.text("Distancia: "+ str(temp[9]),1,28,1)
-                self.display.text("Acel_X: "+str(temp[1]),1,37,1)
-                self.display.text("Acel_Y: "+str(temp[2]),1,46,1)
-                self.display.text("Acel_Z: "+str(temp[3]),1,55,1)
-                self.display.show()
+                #self.display.fill(0)
+                self.display.fill(TFT.BLACK)
+                self.display.text((40, 0), "wifi oK, MQTT oK", TFT.WHITE, sysfont, 1)
+                self.display.text((40, 20), "Mediciones", TFT.WHITE, sysfont, 1)
+                self.display.text((40, 50), "Calidad: "+ str(temp[9]), TFT.WHITE, sysfont, 1)
+                #self.display.text("Acel_X: "+str(temp[1]),1,37,1)
+                #self.display.text("Acel_Y: "+str(temp[2]),1,46,1)
+                #self.display.text("Acel_Z: "+str(temp[3]),1,55,1)
+                #self.display.show()
                 self.cliente.publish("temp",str(temp[0]))
                 self.cliente.publish("acelX",str(temp[1]))
                 self.cliente.publish("acelY",str(temp[2]))
@@ -580,11 +703,13 @@ class EMA():
                 self.cliente.publish("Longitud",str(temp[6]))
                 self.cliente.publish("Fecha",str(temp[7]))
                 self.cliente.publish("Hora",str(temp[8]))
+                self.cliente.publish("calidad",str(temp[9]))
                 print("Envio exitoso!")
                 self.led1.value(not self.led1.value())
             except:
                 print("error de envio mediante wifi")
                 self.t=0
+        
     #Envio de alerta mediante sms      
         if AlertFlag:
             self.AlertSms()
@@ -599,11 +724,44 @@ class EMA():
         except:
             print("error de envio")
             self.t=0
+    
+    def envioDatosSim(self,temp):
+        global contador,temporal
+        i=temp
+        self.publish("tempo",str(i))
+        print("contador en: ", str(contador))
+        if contador < 10:
+            contador=contador+1
+        else:
+            if "OK" in temporal and not "CLOSED" in temporal:
+                print("enviando correctamente")
+                temporal=""
+                contador=0
+                return True
+            else:
+                print("error de envio... Reiniciando")
+                self.disconnect()
+                self.connectS()
+                contador=0
+                temporal=""
+                return False
         
     def calidadAgua(self):
-        global lectura,k_value,q
-        print(q)
+        global k_value,q
+        #print(q)
         if q==1:
+            if k_value==1.0:
+                data = "/k.txt"
+                logf = open(data,"r")
+                lectura=logf.read()
+                logf.close()
+                k_value=float(lectura)
+            else:
+                #os.remove("/k.txt")
+                data = "/k.txt"
+                logf = open(data,"w")
+                logf.write(str(k_value))
+                logf.close()
             try:
                 self.bus.writeto(40, str(k_value))
                 q=0

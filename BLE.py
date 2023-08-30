@@ -54,6 +54,7 @@ class BLEUART:
         self._connections = set()
         self._rx_buffer = bytearray()
         self._handler = None
+        self._disconecthandler = None
 
         # Optionally add services=[_UART_UUID], but this is likely to make the payload too large.
         self._payload = advertising_payload(
@@ -62,6 +63,9 @@ class BLEUART:
 
     def irq(self, handler):
         self._handler = handler
+        
+    def discnthandler(self,handler):
+        self._disconecthandler= handler
 
     def _irq(self, event, data):
         # Track connections so we can send notifications.
@@ -74,6 +78,9 @@ class BLEUART:
             conn_handle, _, _ = data
             pbt.off()
             print('_IRQ_CENTRAL_DISCONNECT')
+            if self._disconecthandler:
+                self._disconecthandler()
+                
             if conn_handle in self._connections:
                 self._connections.remove(conn_handle)
             # Start advertising again to allow a new connection.
