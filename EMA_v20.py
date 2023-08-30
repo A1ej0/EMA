@@ -641,7 +641,7 @@ class EMA():
                     print('Datos de la red (IP/netmask/gw/DNS):', miRed.ifconfig())
                     IPport=miRed.ifconfig()[0]+":8266"
                     webrepl.start()
-                    webrepl.start(password="EMASGC")
+                    #webrepl.start(password="EMASGC")
                     config = [wifi,claveWifi,server,puerto,user,claveMqtt,IPport,k_value,Tel0,Tel1,Tel2,Tel3]
                     print(config)
                     buart.write("Config: "+str(config)+"\n")

@@ -19,12 +19,26 @@ fecha=0
 hora=0
 frecuencia=False
 contadorSIM=0
+count=0
 
+
+def ThirdCore():
+    
+    while True:
+        
+        EMA.envioDatos (datos)
+        time.sleep(1)
+        
+def FourthCore():
+    while True:
+
+        EMA.envioBt (datos)
+        time.sleep(1)
 
 def SecondCore():
     global frecuencia,contadorSIM
+
     while True:
-        EMA.envioDatos (datos)
         #EMA.envioBt (datos)
         if not frecuencia:
             if not EMA.envioDatosSim(datos[9]):
@@ -38,8 +52,13 @@ def SecondCore():
             if contadorSIM>=3600:
                 frecuencia=False
                 contadorSIM=0
-        time.sleep(1) 
+        time.sleep(1)
+        
+        
+_thread.start_new_thread(FourthCore,())        
+_thread.start_new_thread(ThirdCore,())
 _thread.start_new_thread(SecondCore,())
+
 
 while True:
    # if dispositivos[1]==1:
@@ -61,10 +80,16 @@ while True:
     datos= [temp,lluvia,acel[1],acel[2],gauss,lecturaGPS2[0],lecturaGPS2[1],fecha,hora,calidad,distanci]
     datosCalidadAgua=["Fecha: ",fecha,"Hora: ",hora,"Calidad: ",calidad]
     
-    for i in range(len(datosCalidadAgua)):
-        textoRaw=textoRaw+" , "+str(datosCalidadAgua[i])
-    EMA.escribirSD(textoRaw)
-    textoRaw=""
-    EMA.envioBt (datos)
+
+    if count>=60:
+        for i in range(len(datosCalidadAgua)):
+            textoRaw=textoRaw+" , "+str(datosCalidadAgua[i])
+        EMA.escribirSD(textoRaw)
+        time.sleep(1)
+        print("SD sobreescrita")
+        
+        textoRaw=""
+        count=0
+        
+    count+=1
     time.sleep(1)
-    
