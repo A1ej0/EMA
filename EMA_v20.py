@@ -197,6 +197,7 @@ class EMA():
         self.hall = ADC(Pin(34))
         self.hall.atten(ADC.ATTN_11DB)
         
+        
         #SD_init
         try:
             self.sd = machine.SDCard(slot=2, freq=1320000)
@@ -522,6 +523,9 @@ class EMA():
             return (((X1+X2)+8)/2**4)/10
         except:
             return -1
+
+
+        
     
     #Captura Aceleracion
     def Acelerometro(self):
