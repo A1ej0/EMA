@@ -1,14 +1,11 @@
 from ustruct import unpack as unp
 from machine import I2C, Pin, SPI, UART, ADC
-from ST7735 import TFT
-from sysfont import sysfont
 import network, urequests
 import math
 import time
 import os
 import machine
 from simple import MQTTClient
-#import ssd1306
 import framebuf
 from mpu9250 import MPU9250
 import ds1307
@@ -17,14 +14,14 @@ from BLE import BLEUART
 import random
 
 
-bname="EMA01"
+bname="EMAV4"
 ble=bluetooth.BLE()
 buart=BLEUART(ble,bname)
 p=0
 q=1
 config_flag=False
-wifi = "SGC"
-claveWifi="******"
+wifi = "Pancha"
+claveWifi="28041602"
 host="139.177.103.44"
 server=host
 puerto="1883"
@@ -36,6 +33,7 @@ Tel0=0
 Tel1=0
 Tel2=0
 Tel3=0
+UmbralPluv=-1
 AlertFlag=False
 mensajeAlerta = "Alerta Geologica"
 limite=0
@@ -46,17 +44,15 @@ apn="internet.comcel.com.co"
 temporal=""
 
 
-
-
 def on_RX():
-    global wifi,claveWifi,server,puerto,user,claveMqtt,telefono,p,config_flag, AlertFlag, limite,IPport,q,k_value,Tel0,Tel1,Tel2,Tel3
+    global UmbralPluv,wifi,claveWifi,server,puerto,user,claveMqtt,telefono,p,config_flag, AlertFlag, limite,IPport,q,k_value,Tel0,Tel1,Tel2,Tel3
     
     rxbuffer=buart.read().decode().rstrip('\x00')
     rxbuffer=rxbuffer.replace("\n","")
     rxbuffer=rxbuffer.replace("\r","")
         #config
     if rxbuffer == "EMAconfig":
-        config = [wifi,claveWifi,server,puerto,user,claveMqtt,IPport,k_value,Tel0,Tel1,Tel2,Tel3]
+        config = [wifi,claveWifi,server,puerto,user,claveMqtt,IPport,k_value,Tel0,Tel1,Tel2,Tel3,UmbralPluv]
         print(config)
         buart.write("Config: "+str(config)+"\n")
         config_flag=True
@@ -140,6 +136,14 @@ def on_RX():
             print(element)
             limite=str(element)
             p=0
+        if element[0]=="r" and len(element) != 0:
+            element=element[1:]
+            element=element.replace("\n","")
+            element=element.replace("\r","")
+            print("limite cambiado")
+            print(element)
+            UmbralPluv=str(element)
+            p=0
         if element[0]=="k":
             element=element[1:]
             element=element.replace("\n","")
@@ -179,24 +183,12 @@ class EMA():
         self.t=0
         #i2c_init
         self.bus = I2C(1, scl=Pin(22), sda=Pin(21), freq=100000)
-        self.uart = UART(2, 115200, timeout=2000, rx=17, tx=16)
-        #oled_init
-        #self.hspi = SPI(1, 10000000, sck=Pin(14), mosi=Pin(13), miso=Pin(12))
-        self.hspi = SPI(1, baudrate=20000000, polarity=0, phase=0, sck=Pin(14), mosi=Pin(13), miso=Pin(12))
-        dc = Pin(4)    # data/command
-        rst = Pin(2)   # reset
-        cs = Pin(15)   # chip select, some modules do not have a pin for this
-        self.display = TFT(self.hspi,4,2,15)
-        self.display.initr()
-        self.display.rgb(True)
-        
+        self.uart = UART(2, 115200, timeout=2000, rx=16, tx=17)
         #RTC_init
         self.ds = ds1307.DS1307(self.bus)
-        
         #HALL_init
         self.hall = ADC(Pin(34))
         self.hall.atten(ADC.ATTN_11DB)
-        
         
         #SD_init
         try:
@@ -304,72 +296,8 @@ class EMA():
         self.uart.write(message)
         print("intentando conectar a MQTT...")
         time.sleep(5)
-    def error(self,a):
-        b=0
-        c=1
-        while c==1:
-            if a[0]==1:
-                msg="simMod"
-                a[0]=0
-                b=1
-            elif a[1]==1:
-                msg="SDMod"
-                a[1]=0
-                b=1
-            elif a[2]==1:
-                msg="conf"
-                a[2]=0
-                b=1
-            else:
-                c=0
-                #self.display.fill(0)
-                #self.display.show()
-            if b==1:
-                for i in range(15):            
-                    with open('anim/'+str(i)+'.pbm', 'rb') as f:
-                        f.readline() # Magic number
-                        f.readline() # Creator comment
-                        f.readline() # Dimensions
-                        data = bytearray(f.read())
-                    fbuf = framebuf.FrameBuffer(data, 128, 64, framebuf.MONO_HLSB)
-                    #self.display.invert(0)
-                    #self.display.blit(fbuf, 0, 0)
-                    #self.display.text("EMA",1,1,1)
-                    #self.display.text("V.1.0",90,1,1)
-                    #self.display.text("error",45,30,1)
-                    #self.display.text(msg+" no existe",1,56,1)
-                    #self.display.show()
-                    time.sleep(0.1)
-                #self.display.fill(0)
-                #self.display.show()
-                b=0
-                time.sleep(2)
                 
-    def animLoading(self):
-        for i in range(15):            
-            with open('anim/'+str(i)+'.pbm', 'rb') as f:
-                f.readline() # Magic number
-                f.readline() # Creator comment
-                f.readline() # Dimensions
-                data = bytearray(f.read())
-            fbuf = framebuf.FrameBuffer(data, 128, 64, framebuf.MONO_HLSB)
-            #self.display.invert(0)
-            #self.display.blit(fbuf, 0, 0)
-            #self.display.show()
-            time.sleep(0.1)
-        #self.display.fill(0)
-        #self.display.show()
         
-    def logoEMA(self):
-        with open('anim/logo.pbm', 'rb') as f:
-            f.readline() # Magic number
-            f.readline() # Creator comment
-            f.readline() # Dimensions
-            data = bytearray(f.read())
-        fbuf = framebuf.FrameBuffer(data, 128, 64, framebuf.MONO_HLSB)
-        #self.display.invert(0)
-        #self.display.blit(fbuf, 0, 0)
-        #self.display.show()
         
     def escaneoInicial(self):
         
@@ -481,11 +409,7 @@ class EMA():
             print(str(i+1)+". "+str(self.sensores.get(devices[i])))
         if 1 in self.errores_criticos:
             pass
-            #self.error(self.errores_criticos)
-        #self.limpiarOLED()
-        #self.escribirOLED("Completo",5,30)
         time.sleep(1)
-        #self.animLoading()
         return(self.dispositivos)          
     #Calibracion temperatura
     def calibracionTemp(self):
@@ -523,9 +447,6 @@ class EMA():
             return (((X1+X2)+8)/2**4)/10
         except:
             return -1
-
-
-        
     
     #Captura Aceleracion
     def Acelerometro(self):
@@ -539,8 +460,13 @@ class EMA():
             return [0,0,0]
     #Captura Pluviometro
     def Pluviometro(self):
-        self.gauss = round(((round(self.hall.read_uv()/1000000,2)/3.3)*2000)-1000,2)
-        return(self.gauss)
+        global UmbralPluv
+        try:
+            Pluv=self.bus.readfrom(88, 2).decode().strip("\x00")
+        except:
+            Pluv=-1         
+            
+        return(Pluv)
     
     #Retorno de hora y fecha RTC
     def rtc(self):
@@ -548,19 +474,6 @@ class EMA():
             return(self.ds.datetime())
         except:
             return [0,0,0,0,0,0,0,0]
-    
-    #Funciones de OLED
-    def escribirOLED(self,texto,x,y):
-        try:
-            pass
-            #self.display.text(str(texto),x,y,1)
-            #self.display.show()
-        except:
-            pass
-    def limpiarOLED(self):
-        pass
-        #self.display.fill(0)
-        #self.display.show()
     
     #Funciones SD_card
     def leerSD(self):
@@ -584,25 +497,26 @@ class EMA():
             dist=self.bus.readfrom(80, 4).decode().strip("\x00")
             dist=int(dist)-100
         except:
-            dist=0
+            dist=-1
         return dist
     #Alerta mediante SMS
-    def AlertSms(self):
+    def AlertSms(self,nivel):
+        global UmbralPluv
         global telefono, mensajeAlerta
-        print("Mensaje: "+str(mensajeAlerta)+" enviado a: "+str(telefono))
-        phone = self.uart1
-
-        time.sleep(0.5)
-        phone.write(b'AT\r')
-        time.sleep(0.5)
-        phone.write(b'AT+CMGF=1\r')
-        time.sleep(0.5)
-        phone.write(b'AT+CMGS="' + telefono.encode() + b'"\r')
-        time.sleep(0.5)
-        phone.write(mensajeAlerta.encode() + b"\r")
-        time.sleep(0.5)
-        phone.write(bytes([26]))
-        time.sleep(0.5)
+        if UmbralPluv>=0 and nivel>=UmbralPluv:
+            print("Mensaje: "+str(mensajeAlerta)+" enviado a: "+str(telefono))
+            phone = self.uart1
+            time.sleep(0.5)
+            phone.write(b'AT\r')
+            time.sleep(0.5)
+            phone.write(b'AT+CMGF=1\r')
+            time.sleep(0.5)
+            phone.write(b'AT+CMGS="' + telefono.encode() + b'"\r')
+            time.sleep(0.5)
+            phone.write(mensajeAlerta.encode() + b"\r")
+            time.sleep(0.5)
+            phone.write(bytes([26]))
+            time.sleep(0.5)
 
 
     #Ajustes de envio de datos, wifi y MQTT
@@ -613,7 +527,7 @@ class EMA():
         self.temp = temp
         if p==0:
             
-            self.cliente = MQTTClient(client_id=str(user),server=str(server),port=int(puerto),user=str(user),password=str(claveMqtt),keepalive=60)
+            self.cliente = MQTTClient(client_id="EMAV4",server=str(server),port=int(puerto),user=str(user),password=str(claveMqtt),keepalive=60)
             self.led3.value(1)
             self.led2.value(0)
             miRed.active(False)
@@ -625,12 +539,8 @@ class EMA():
             except:
                 pass
             try:
-                for i in range(10):
+                for i in range(30):
                     if not miRed.isconnected():
-                        #self.display.fill(0)
-                        #self.display.text("conectando wifi:",1,1,1)
-                        #self.display.text(str(wifi) +" " + str(i+1)+'/10...',1,20,1)
-                        #self.display.show()
                         self.led3.value(1)
                         self.led2.value(1)
                         print('Conectando a la red', wifi +"... " + str(i+1)+'/10...')
@@ -638,9 +548,6 @@ class EMA():
                 if miRed.isconnected():
                     self.led3.value(0)
                     self.led2.value(1)
-                    #self.display.fill(0)
-                    #self.display.text("Conexion exitosa!",1,20,1)
-                    #self.display.show()
                     print ("Conexión exitosa!")
                     print('Datos de la red (IP/netmask/gw/DNS):', miRed.ifconfig())
                     IPport=miRed.ifconfig()[0]+":8266"
@@ -651,10 +558,6 @@ class EMA():
                     buart.write("Config: "+str(config)+"\n")
                     
                 else:
-                    #self.display.fill(0)
-                    #self.display.text("continue por",1,1,1)
-                    #self.display.text("Bluetooth",1,20,1)
-                    #self.display.show()
                     print("red Wifi no disponible")
                     time.sleep(5)
             except:
@@ -662,25 +565,8 @@ class EMA():
             p=1
         if not miRed.isconnected():
             pass
-            #self.display.fill(0)
-            #self.display.text("wifi NO, MQTT NO",1,1,1)
-            #self.display.text("mediciones",1,15,1)
-            ##self.display.text("Distancia: "+ str(temp[9]),1,28,1)
-            #self.display.text("Calidad: "+ str(temp[9]),1,28,1)
-            ##self.display.text("Distancia: "+str(temp[1]),1,37,1)
-            #self.display.text("Temperatura:"+str(temp[0]),1,46,1)
-            ##self.display.text("Acel_Z: "+str(temp[3]),1,55,1)
-            #self.display.show()
         if self.t==0 and miRed.isconnected():
             time.sleep(0.3)
-            #self.display.fill(0)
-            #self.display.text("wifi OK, MQTT NO",1,1,1)
-            #self.display.text("mediciones",1,15,1)
-            #self.display.text("Distancia: "+ str(temp[9]),1,28,1)
-            #self.display.text("Acel_X: "+str(temp[1]),1,37,1)
-            #self.display.text("Acel_Y: "+str(temp[2]),1,46,1)
-            #self.display.text("Acel_Z: "+str(temp[3]),1,55,1)
-            #self.display.show()
             try: 
                 print("Conectando MQTT...")
                 self.cliente.connect()
@@ -689,25 +575,16 @@ class EMA():
                 print("error de conexion MQTT...")
         if miRed.isconnected() and self.t==1:
             try:
-                #self.display.fill(0)
-                self.display.fill(TFT.BLACK)
-                self.display.text((40, 0), "wifi oK, MQTT oK", TFT.WHITE, sysfont, 1)
-                self.display.text((40, 20), "Mediciones", TFT.WHITE, sysfont, 1)
-                self.display.text((40, 50), "Calidad: "+ str(temp[9]), TFT.WHITE, sysfont, 1)
-                #self.display.text("Acel_X: "+str(temp[1]),1,37,1)
-                #self.display.text("Acel_Y: "+str(temp[2]),1,46,1)
-                #self.display.text("Acel_Z: "+str(temp[3]),1,55,1)
-                #self.display.show()
-                self.cliente.publish("temp",str(temp[0]))
-                self.cliente.publish("acelX",str(temp[1]))
-                self.cliente.publish("acelY",str(temp[2]))
-                self.cliente.publish("acelZ",str(temp[3]))
-                self.cliente.publish("Pluv",str(temp[4]))
-                self.cliente.publish("Latitud",str(temp[5]))
-                self.cliente.publish("Longitud",str(temp[6]))
-                self.cliente.publish("Fecha",str(temp[7]))
-                self.cliente.publish("Hora",str(temp[8]))
-                self.cliente.publish("calidad",str(temp[9]))
+                self.cliente.publish("temp4",str(temp[0]))
+                self.cliente.publish("acelX4",str(temp[1]))
+                self.cliente.publish("acelY4",str(temp[2]))
+                self.cliente.publish("acelZ4",str(temp[3]))
+                self.cliente.publish("Pluv4",str(temp[4]))
+                self.cliente.publish("Latitud4",str(temp[5]))
+                self.cliente.publish("Longitud4",str(temp[6]))
+                self.cliente.publish("Fecha4",str(temp[7]))
+                self.cliente.publish("Hora4",str(temp[8]))
+                self.cliente.publish("calidad4",str(temp[9]))
                 print("Envio exitoso!")
                 self.led1.value(not self.led1.value())
             except:
@@ -731,8 +608,7 @@ class EMA():
     
     def envioDatosSim(self,temp):
         global contador,temporal
-        i=temp
-        self.publish("tempo",str(i))
+        self.publish("temp4G",str(temp[0]))
         print("contador en: ", str(contador))
         if contador < 10:
             contador=contador+1

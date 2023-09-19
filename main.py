@@ -4,15 +4,14 @@ import _thread
 
 
 EMA = EMA()
-#dispositivos = EMA.escaneoInicial()
-#EMA.calibracionTemp()
-
+EMA.calibracionTemp()
 temp= 0
 datos = [0,0,0,0,0,0,0,0,0,0,0]
 lecturaGPS2 = [0,0,0,0]
 acel=[0,0,0]
 gauss=0
 lluvia=0
+lluvias=0
 distanci=0
 textoRaw=""
 fecha=0
@@ -20,6 +19,8 @@ hora=0
 frecuencia=False
 contadorSIM=0
 count=0
+count2=0
+calidad=0
 
 
 def ThirdCore():
@@ -39,9 +40,8 @@ def SecondCore():
     global frecuencia,contadorSIM
 
     while True:
-        #EMA.envioBt (datos)
         if not frecuencia:
-            if not EMA.envioDatosSim(datos[9]):
+            if not EMA.envioDatosSim(datos):
                 pass
             else:
                 print("Proximo envio en una hora...")
@@ -61,33 +61,28 @@ _thread.start_new_thread(SecondCore,())
 
 
 while True:
-   # if dispositivos[1]==1:
-   #     temp = EMA.Temperature()
-        #print(EMA.Temperature())
-    #if dispositivos[2]==1:
-    #    acel[0] = EMA.Acelerometro()[0]
-    #    acel[1] = EMA.Acelerometro()[1]
-    #    acel[2] = EMA.Acelerometro()[2]
-        #print(EMA.Acelerometro())
-    #if dispositivos[3]==1:
-    #    gauss = EMA.Pluviometro()
-        #print(EMA.Pluviometro())
+    temp = EMA.Temperature()
     fechaHora = EMA.rtc()
-    #distanci=EMA.distancia()
+    distanci=EMA.distancia()
     calidad=EMA.calidadAgua()
     hora=str(fechaHora[4])+":"+str(fechaHora[5])+":"+str(fechaHora[6])
     fecha=str(fechaHora[2])+"/"+str(fechaHora[1])+"/"+str(fechaHora[0])
-    datos= [temp,lluvia,acel[1],acel[2],gauss,lecturaGPS2[0],lecturaGPS2[1],fecha,hora,calidad,distanci]
-    datosCalidadAgua=["Fecha: ",fecha,"Hora: ",hora,"Calidad: ",calidad]
     
-
+    datos= [temp,lluvia,acel[1],acel[2],gauss,lecturaGPS2[0],lecturaGPS2[1],fecha,hora,calidad,distanci]
+    
     if count>=60:
-        for i in range(len(datosCalidadAgua)):
-            textoRaw=textoRaw+" , "+str(datosCalidadAgua[i])
+        lluvia=EMA.Pluviometro()
+        lluvias=lluvias+lluvia
+        if count2>=(60*24):
+            EMA.AlertSms(lluvias)
+            lluvias=0
+            count2=0
+        count2=count2+1
+        for i in range(len(datos)):
+            textoRaw=textoRaw+" , "+str(datos)
         EMA.escribirSD(textoRaw)
         time.sleep(1)
         print("SD sobreescrita")
-        
         textoRaw=""
         count=0
         
