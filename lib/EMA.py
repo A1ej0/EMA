@@ -97,20 +97,17 @@ class EMA():
         self.display.fill(0)
         self.display.show() 
     def calibracionTemp(self):
-        try:
-            self.chip_id = self._bmp_i2c.readfrom_mem(self.direccionTemperatura, 0xD0, 2)
-            self._AC5 = unp('>H', self._bmp_i2c.readfrom_mem(self.direccionTemperatura, 0xB2, 2))[0]
-            self._AC6 = unp('>H', self._bmp_i2c.readfrom_mem(self.direccionTemperatura, 0xB4, 2))[0]
-            self._MC = unp('>h', self._bmp_i2c.readfrom_mem(self.direccionTemperatura, 0xBC, 2))[0]
-            self._MD = unp('>h', self._bmp_i2c.readfrom_mem(self.direccionTemperatura, 0xBE, 2))[0]
-            self.UT_raw = None
-            self.B5_raw = None
-            self.MSB_raw = None
-            self.LSB_raw = None
-            print("Calibracion Temperatura completada")
-            return "calibrado"
-        except:
-            return "error de calibracion"
+        self.chip_id = self._bmp_i2c.readfrom_mem(self.direccionTemperatura, 0xD0, 2)
+        self._AC5 = unp('>H', self._bmp_i2c.readfrom_mem(self.direccionTemperatura, 0xB2, 2))[0]
+        self._AC6 = unp('>H', self._bmp_i2c.readfrom_mem(self.direccionTemperatura, 0xB4, 2))[0]
+        self._MC = unp('>h', self._bmp_i2c.readfrom_mem(self.direccionTemperatura, 0xBC, 2))[0]
+        self._MD = unp('>h', self._bmp_i2c.readfrom_mem(self.direccionTemperatura, 0xBE, 2))[0]
+        self.UT_raw = None
+        self.B5_raw = None
+        self.MSB_raw = None
+        self.LSB_raw = None
+        print("Calibracion Temperatura completada")
+        return "calibrado"
     def calibracionAcel(self,rounds):
         self.iteraciones=rounds
         self.acel.ak8963.calibrate(count=self.iteraciones)
@@ -145,15 +142,12 @@ class EMA():
                 print('Conectando a la red', red +"…")
             except:
                 conectaWifi(red,password)
-            try:
-                while not miRed.isconnected():
-                    print('Conectando a la red', red +"… " + str(n))
-                    n=n+1
-                    time.sleep(0.5)
-                print ("Conexión exitosa!")
-                print('Datos de la red (IP/netmask/gw/DNS):', miRed.ifconfig())
-            except:
-                conectaWifi(red,password)
+            while not miRed.isconnected():
+                print('Conectando a la red', red +"… " + str(n))
+                n=n+1
+                time.sleep(0.5)
+            print ("Conexión exitosa!")
+            print('Datos de la red (IP/netmask/gw/DNS):', miRed.ifconfig())
 ## Envio de datos a hoja de calculo de google
 #         try:
 #             print("enviando datos..."+str(self.temp))
@@ -176,10 +170,6 @@ class EMA():
             self.cliente.publish("acelY",str(temp[2]))
             self.cliente.publish("acelZ",str(temp[3]))
             self.cliente.publish("Pluv",str(temp[4]))
-            self.cliente.publish("Latitud",str(temp[5]))
-            self.cliente.publish("Longitud",str(temp[6]))
-            self.cliente.publish("Fecha",str(temp[7]))
-            self.cliente.publish("Hora",str(temp[8]))
             print("Envio exitoso!")
         except:
             print("error de envio")
