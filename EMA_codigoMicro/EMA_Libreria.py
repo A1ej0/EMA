@@ -342,8 +342,13 @@ class EMA():
         
     #Captura Pluviometro
     def Pluviometro(self):
-        self.gauss = round(((round(self.hall.read_uv()/1000000,2)/3.3)*2000)-1000,2)
-        return(self.gauss)
+        global UmbralPluv
+        try:
+            Pluv=self.bus.readfrom(88, 2).decode().strip("\x00")
+        except:
+            Pluv=-1         
+            
+        return(Pluv)
     
     #Retorno de hora y fecha RTC
     def rtc(self):
