@@ -3,7 +3,7 @@
 </div>  
   
 
-### <div align="center">EMA - Estación de Monitoreo Automático 🍃</div>  
+# <div align="center">EMA - Estación de Monitoreo Automático 🍃</div>  
   
 
 -  De bajo costo💸  
@@ -83,4 +83,3 @@ Los módulos son los sensores que es capaz de leer EMA
 Se espera para el futuro la integración de módulos adicionales para lecturas de variables medioambientales diferentes con una variedad mas amplia de sensores, también se pretende el diseño y construcción de un sistema de programación remoto por medio del cual los usuarios podrán cargar el programa en la placa de desarrollo sin requerir ningún programa mas allá de un navegador web 💻  
 
 <br />
-
