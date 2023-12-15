@@ -6,6 +6,11 @@
 # <div align="center">EMA - Estación de Monitoreo Automático 🍃</div>  
   
 
+<div align="right">
+<img src="https://raw.githubusercontent.com/A1ej0/EMA/main/Sin%20nombre.png?token=GHSAT0AAAAAACLTYWEPDX7HIG6CSBKCPELKZL4QP4Q" align="right" height="220" width="" />
+</div>  
+  
+
 -  De bajo costo💸  
   
 
