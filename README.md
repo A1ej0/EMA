@@ -7,7 +7,7 @@
   
 
 <div align="right">
-<img src="https://raw.githubusercontent.com/A1ej0/EMA/main/Sin%20nombre.png?token=GHSAT0AAAAAACLTYWEPDX7HIG6CSBKCPELKZL4QP4Q" align="right" height="220" width="" />
+<img src="Sin%20nombre.png" align="right" height="220" width="" />
 </div>  
   
 
