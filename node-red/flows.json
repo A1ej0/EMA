@@ -1,569 +1,316 @@
 [
     {
-        "id": "1b508c5035049a1d",
+        "id": "ce1a89efb4367372",
         "type": "tab",
-        "label": "Flow 1",
-        "disabled": true,
-        "info": ""
-    },
-    {
-        "id": "74a7db9f929bf8e0",
-        "type": "tab",
-        "label": "Flow 2",
-        "disabled": true,
-        "info": ""
-    },
-    {
-        "id": "35bdf8ed21f1d575",
-        "type": "tab",
-        "label": "Flow 3",
-        "disabled": true,
-        "info": ""
-    },
-    {
-        "id": "f3dd3d99148a99c9",
-        "type": "tab",
-        "label": "Flow 4",
+        "label": "EMA V5 Lluvia/Distancia",
         "disabled": false,
         "info": "",
         "env": []
     },
     {
-        "id": "fb65ed18e772957e",
-        "type": "subflow",
-        "name": "Subflow 1",
-        "info": "",
-        "in": [],
-        "out": []
-    },
-    {
-        "id": "64f4635e02ea4ddb",
-        "type": "mqtt-broker",
-        "name": "EMA",
-        "broker": "raspberrypi.local",
-        "port": "1883",
-        "clientid": "",
-        "autoConnect": true,
-        "usetls": false,
-        "protocolVersion": "4",
-        "keepalive": "60",
-        "cleansession": true,
-        "birthTopic": "",
-        "birthQos": "0",
-        "birthPayload": "",
-        "birthMsg": {},
-        "closeTopic": "",
-        "closeQos": "0",
-        "closePayload": "",
-        "closeMsg": {},
-        "willTopic": "",
-        "willQos": "0",
-        "willPayload": "",
-        "willMsg": {},
-        "userProps": "",
-        "sessionExpiry": ""
-    },
-    {
-        "id": "83437116a77c8870",
-        "type": "twilioConfig",
-        "name": "twilioConfig"
-    },
-    {
-        "id": "37f5d64f5f50ce7c",
-        "type": "ui_tab",
-        "name": "EMA",
-        "icon": "dashboard",
-        "disabled": false,
-        "hidden": false
-    },
-    {
-        "id": "706d6522c5fc62f4",
-        "type": "ui_base",
-        "theme": {
-            "name": "theme-light",
-            "lightTheme": {
-                "default": "#0094CE",
-                "baseColor": "#0094CE",
-                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
-                "edited": true,
-                "reset": false
-            },
-            "darkTheme": {
-                "default": "#097479",
-                "baseColor": "#097479",
-                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
-                "edited": false
-            },
-            "customTheme": {
-                "name": "Untitled Theme 1",
-                "default": "#4B7930",
-                "baseColor": "#4B7930",
-                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif"
-            },
-            "themeState": {
-                "base-color": {
-                    "default": "#0094CE",
-                    "value": "#0094CE",
-                    "edited": false
-                },
-                "page-titlebar-backgroundColor": {
-                    "value": "#0094CE",
-                    "edited": false
-                },
-                "page-backgroundColor": {
-                    "value": "#fafafa",
-                    "edited": false
-                },
-                "page-sidebar-backgroundColor": {
-                    "value": "#ffffff",
-                    "edited": false
-                },
-                "group-textColor": {
-                    "value": "#1bbfff",
-                    "edited": false
-                },
-                "group-borderColor": {
-                    "value": "#ffffff",
-                    "edited": false
-                },
-                "group-backgroundColor": {
-                    "value": "#ffffff",
-                    "edited": false
-                },
-                "widget-textColor": {
-                    "value": "#111111",
-                    "edited": false
-                },
-                "widget-backgroundColor": {
-                    "value": "#0094ce",
-                    "edited": false
-                },
-                "widget-borderColor": {
-                    "value": "#ffffff",
-                    "edited": false
-                },
-                "base-font": {
-                    "value": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif"
-                }
-            },
-            "angularTheme": {
-                "primary": "indigo",
-                "accents": "blue",
-                "warn": "red",
-                "background": "grey",
-                "palette": "light"
-            }
-        },
-        "site": {
-            "name": "Node-RED Dashboard",
-            "hideToolbar": "false",
-            "allowSwipe": "false",
-            "lockMenu": "false",
-            "allowTempTheme": "true",
-            "dateFormat": "DD/MM/YYYY",
-            "sizes": {
-                "sx": 48,
-                "sy": 48,
-                "gx": 6,
-                "gy": 6,
-                "cx": 6,
-                "cy": 6,
-                "px": 0,
-                "py": 0
-            }
-        }
-    },
-    {
-        "id": "ce713a09c9a3e89c",
-        "type": "ui_group",
-        "name": "EMA, control de datos",
-        "tab": "37f5d64f5f50ce7c",
-        "order": 1,
-        "disp": true,
-        "width": "6",
-        "collapse": false,
-        "className": ""
-    },
-    {
-        "id": "85daeb8d8271430f",
-        "type": "twilio-api",
-        "name": "EMA",
-        "sid": "AC8fd46300964e326236901fe66372a709",
-        "from": "+15673472704"
-    },
-    {
-        "id": "0925553f27d83918",
-        "type": "twilio-api",
-        "name": "EMA",
-        "sid": "AC8fd46300964e326236901fe66372a709",
-        "from": "+15673472704"
-    },
-    {
-        "id": "959994992291cb27",
-        "type": "inject",
-        "z": "1b508c5035049a1d",
-        "name": "",
-        "props": [
-            {
-                "p": "payload"
-            },
-            {
-                "p": "topic",
-                "vt": "str"
-            }
-        ],
-        "repeat": "10",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payloadType": "date",
-        "x": 260,
-        "y": 80,
-        "wires": [
-            [
-                "1ea9fa90ad3bbcfe"
-            ]
-        ]
-    },
-    {
-        "id": "1ea9fa90ad3bbcfe",
-        "type": "random",
-        "z": "1b508c5035049a1d",
-        "name": "",
-        "low": 1,
-        "high": "20",
-        "inte": "true",
-        "property": "payload",
-        "x": 460,
-        "y": 80,
-        "wires": [
-            [
-                "1c38b49127094699",
-                "4a0524e43b5200f2"
-            ]
-        ]
-    },
-    {
-        "id": "1c38b49127094699",
-        "type": "mqtt out",
-        "z": "1b508c5035049a1d",
-        "name": "",
-        "topic": "EMA/accelz",
-        "qos": "",
-        "retain": "",
-        "respTopic": "",
-        "contentType": "",
-        "userProps": "",
-        "correl": "",
-        "expiry": "",
-        "broker": "64f4635e02ea4ddb",
-        "x": 700,
-        "y": 80,
-        "wires": []
-    },
-    {
-        "id": "4a0524e43b5200f2",
-        "type": "mqtt out",
-        "z": "1b508c5035049a1d",
-        "name": "",
-        "topic": "EMA/prueba",
-        "qos": "",
-        "retain": "",
-        "respTopic": "",
-        "contentType": "",
-        "userProps": "",
-        "correl": "",
-        "expiry": "",
-        "broker": "64f4635e02ea4ddb",
-        "x": 710,
-        "y": 140,
-        "wires": []
-    },
-    {
-        "id": "c773469ec51d2bb3",
-        "type": "debug",
-        "z": "74a7db9f929bf8e0",
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 830,
-        "y": 100,
-        "wires": []
-    },
-    {
-        "id": "c2aa4f64e294b46f",
+        "id": "317e7208378d1bc1",
         "type": "mqtt in",
-        "z": "74a7db9f929bf8e0",
+        "z": "ce1a89efb4367372",
         "name": "",
-        "topic": "EMA/accelz",
+        "topic": "lluvia",
         "qos": "2",
-        "datatype": "json",
+        "datatype": "auto-detect",
         "broker": "64f4635e02ea4ddb",
         "nl": false,
         "rap": true,
         "rh": 0,
         "inputs": 0,
-        "x": 210,
-        "y": 220,
+        "x": 930,
+        "y": 280,
         "wires": [
             [
-                "a47c373da4a4fa1f",
-                "b68dad09259a51c3"
+                "dc7b5075586ed12c",
+                "d2b136beb795c2b9",
+                "d81a9503ef52c2b0"
             ]
         ]
     },
     {
-        "id": "a47c373da4a4fa1f",
-        "type": "switch",
-        "z": "74a7db9f929bf8e0",
-        "name": "",
-        "property": "payload",
-        "propertyType": "msg",
-        "rules": [
-            {
-                "t": "gte",
-                "v": "40",
-                "vt": "num"
-            },
-            {
-                "t": "eq",
-                "v": "",
-                "vt": "str"
-            }
-        ],
-        "checkall": "true",
-        "repair": false,
-        "outputs": 2,
-        "x": 450,
-        "y": 160,
-        "wires": [
-            [
-                "7230b49273381871"
-            ],
-            []
-        ]
-    },
-    {
-        "id": "5039db89f5ea8703",
-        "type": "mqtt out",
-        "z": "74a7db9f929bf8e0",
-        "name": "",
-        "topic": "EMA/status",
-        "qos": "",
-        "retain": "",
-        "respTopic": "",
-        "contentType": "",
-        "userProps": "",
-        "correl": "",
-        "expiry": "",
-        "broker": "64f4635e02ea4ddb",
-        "x": 870,
-        "y": 180,
-        "wires": []
-    },
-    {
-        "id": "7230b49273381871",
-        "type": "template",
-        "z": "74a7db9f929bf8e0",
-        "name": "",
-        "field": "payload",
-        "fieldType": "msg",
-        "format": "handlebars",
-        "syntax": "mustache",
-        "template": "Alerta de riesgo!\n\nEl sensor marca: {{payload}} ",
-        "output": "str",
-        "x": 590,
-        "y": 80,
-        "wires": [
-            [
-                "c773469ec51d2bb3",
-                "5039db89f5ea8703",
-                "0d1dbf0f5d476b81",
-                "bbc4a120e1cba0d0"
-            ]
-        ]
-    },
-    {
-        "id": "bbc4a120e1cba0d0",
-        "type": "sms",
-        "z": "74a7db9f929bf8e0",
-        "name": "sms",
-        "message": "",
-        "numbers": "+573123776985,+573014961877,+573148663113",
-        "throttle": 1000,
-        "twilio": "83437116a77c8870",
-        "x": 790,
-        "y": 300,
-        "wires": [
-            []
-        ]
-    },
-    {
-        "id": "b68dad09259a51c3",
-        "type": "link out",
-        "z": "74a7db9f929bf8e0",
-        "name": "accelz",
-        "links": [
-            "eedc959f27e25b23"
-        ],
-        "x": 355,
-        "y": 380,
-        "wires": []
-    },
-    {
-        "id": "0d1dbf0f5d476b81",
-        "type": "link out",
-        "z": "74a7db9f929bf8e0",
-        "name": "warning",
-        "links": [
-            "5a1989e50c610cb6"
-        ],
-        "x": 755,
-        "y": 380,
-        "wires": []
-    },
-    {
-        "id": "2ef0b02c265a9203",
-        "type": "inject",
-        "z": "35bdf8ed21f1d575",
-        "name": "",
-        "props": [
-            {
-                "p": "payload"
-            },
-            {
-                "p": "topic",
-                "vt": "str"
-            }
-        ],
-        "repeat": "60",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "payloadType": "date",
-        "x": 220,
-        "y": 120,
-        "wires": [
-            [
-                "a9972259316a30e5"
-            ]
-        ]
-    },
-    {
-        "id": "a9972259316a30e5",
-        "type": "moment",
-        "z": "35bdf8ed21f1d575",
-        "name": "",
-        "topic": "",
-        "input": "payload",
-        "inputType": "msg",
-        "inTz": "America/Bogota",
-        "adjAmount": "1",
-        "adjType": "minutes",
-        "adjDir": "subtract",
-        "format": "",
-        "locale": "es-CO",
-        "output": "dateFrom",
-        "outputType": "msg",
-        "outTz": "America/Bogota",
-        "x": 280,
-        "y": 200,
-        "wires": [
-            []
-        ]
-    },
-    {
-        "id": "7091cac1901a740d",
-        "type": "debug",
-        "z": "35bdf8ed21f1d575",
-        "name": "",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 590,
-        "y": 200,
-        "wires": []
-    },
-    {
-        "id": "eedc959f27e25b23",
-        "type": "link in",
-        "z": "35bdf8ed21f1d575",
-        "name": "accelzout",
-        "links": [
-            "b68dad09259a51c3"
-        ],
-        "x": 495,
-        "y": 400,
-        "wires": [
-            [
-                "8f8c6d54d9235bfe"
-            ]
-        ]
-    },
-    {
-        "id": "6a4ca5285673d8ba",
-        "type": "ui_toast",
-        "z": "35bdf8ed21f1d575",
-        "position": "top right",
-        "displayTime": "3",
-        "highlight": "",
-        "sendall": true,
-        "outputs": 0,
-        "ok": "OK",
-        "cancel": "",
-        "raw": false,
-        "className": "",
-        "topic": "",
-        "name": "",
-        "x": 690,
-        "y": 320,
-        "wires": []
-    },
-    {
-        "id": "5a1989e50c610cb6",
-        "type": "link in",
-        "z": "35bdf8ed21f1d575",
-        "name": "warningout",
-        "links": [
-            "0d1dbf0f5d476b81"
-        ],
-        "x": 495,
-        "y": 320,
-        "wires": [
-            [
-                "6a4ca5285673d8ba"
-            ]
-        ]
-    },
-    {
-        "id": "8f8c6d54d9235bfe",
-        "type": "ui_chart",
-        "z": "35bdf8ed21f1d575",
+        "id": "dc7b5075586ed12c",
+        "type": "ui_gauge",
+        "z": "ce1a89efb4367372",
         "name": "",
         "group": "ce713a09c9a3e89c",
-        "order": 0,
+        "order": 1,
         "width": 0,
         "height": 0,
-        "label": "chart",
+        "gtype": "gage",
+        "title": "Precipitación diaria acumulada",
+        "label": "mm",
+        "format": "{{value}}",
+        "min": "0",
+        "max": "40",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 1210,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "d2b136beb795c2b9",
+        "type": "function",
+        "z": "ce1a89efb4367372",
+        "name": "",
+        "func": "global.set(\"lluvia\",msg.payload);\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1140,
+        "y": 320,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e98685e4733810eb",
+        "type": "mqtt in",
+        "z": "ce1a89efb4367372",
+        "name": "",
+        "topic": "lluvia5G",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "64f4635e02ea4ddb",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 180,
+        "y": 260,
+        "wires": [
+            [
+                "c982a70461ee01f8",
+                "6181a201df2f76a3",
+                "1224cc55ff70a535"
+            ]
+        ]
+    },
+    {
+        "id": "b0f6eb4d6549cd68",
+        "type": "mqtt in",
+        "z": "ce1a89efb4367372",
+        "name": "",
+        "topic": "distancia5G",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "64f4635e02ea4ddb",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 190,
+        "y": 340,
+        "wires": [
+            [
+                "598e86b3e081ab83",
+                "baf369b50c165ccf",
+                "db74426f2c361460"
+            ]
+        ]
+    },
+    {
+        "id": "3d2cc6be644923f5",
+        "type": "mqtt in",
+        "z": "ce1a89efb4367372",
+        "name": "",
+        "topic": "distancia",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "64f4635e02ea4ddb",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 920,
+        "y": 140,
+        "wires": [
+            [
+                "cf1980f3575673f2",
+                "3b31dd1abc2d303b",
+                "c5e27166f90b8c2f"
+            ]
+        ]
+    },
+    {
+        "id": "c982a70461ee01f8",
+        "type": "function",
+        "z": "ce1a89efb4367372",
+        "name": "",
+        "func": "global.set(\"lluvia5G\",msg.payload);\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 380,
+        "y": 200,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "598e86b3e081ab83",
+        "type": "function",
+        "z": "ce1a89efb4367372",
+        "name": "",
+        "func": "global.set(\"distancia5G\",msg.payload);\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 400,
+        "y": 360,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "cf1980f3575673f2",
+        "type": "function",
+        "z": "ce1a89efb4367372",
+        "name": "",
+        "func": "global.set(\"distancia\",msg.payload);\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1120,
+        "y": 120,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6181a201df2f76a3",
+        "type": "ui_gauge",
+        "z": "ce1a89efb4367372",
+        "name": "",
+        "group": "b7f2073d2ca72d08",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Precipitación diaria acumulada",
+        "label": "mm",
+        "format": "{{value}}",
+        "min": "0",
+        "max": "40",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 470,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "3b31dd1abc2d303b",
+        "type": "ui_gauge",
+        "z": "ce1a89efb4367372",
+        "name": "",
+        "group": "ce713a09c9a3e89c",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Distancia",
+        "label": "cm",
+        "format": "{{value}}",
+        "min": "0",
+        "max": "200",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 1160,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "baf369b50c165ccf",
+        "type": "ui_gauge",
+        "z": "ce1a89efb4367372",
+        "name": "",
+        "group": "b7f2073d2ca72d08",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Distancia",
+        "label": "cm",
+        "format": "{{value}}",
+        "min": "0",
+        "max": "200",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 400,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "632cfef01b286d38",
+        "type": "comment",
+        "z": "ce1a89efb4367372",
+        "name": "EMA V5",
+        "info": "En este flujo se cuentan con los tópicos correspondientes a la versión 5 de la EMA.\n\nSe cuenta con los tópicos de MQTT de distancia y lluvia tanto para la recepción por Wi-Fi como por GSM.\nLos bloques de color celeste corresponden a los bloques de medidor para la dashboard para la presentación de los datos.\nLos bloques de función cuentan con un código simple que se encarga de guardar la infomación en una variable global\npara poderla almacenar en la tabla de datos y enviar el reporte por correo.",
+        "x": 360,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "1224cc55ff70a535",
+        "type": "ui_chart",
+        "z": "ce1a89efb4367372",
+        "name": "",
+        "group": "b7f2073d2ca72d08",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "label": "Precipitación diaria acumulada",
         "chartType": "line",
-        "legend": "false",
+        "legend": "true",
         "xformat": "HH:mm:ss",
         "interpolate": "linear",
         "nodata": "",
         "dot": false,
         "ymin": "0",
-        "ymax": "50",
+        "ymax": "40",
         "removeOlder": 1,
         "removeOlderPoints": "",
         "removeOlderUnit": "3600",
@@ -584,431 +331,33 @@
         "outputs": 1,
         "useDifferentColor": false,
         "className": "",
-        "x": 650,
-        "y": 400,
+        "x": 470,
+        "y": 300,
         "wires": [
             []
         ]
     },
     {
-        "id": "524bc83a249eafbd",
-        "type": "mqtt in",
-        "z": "f3dd3d99148a99c9",
+        "id": "db74426f2c361460",
+        "type": "ui_chart",
+        "z": "ce1a89efb4367372",
         "name": "",
-        "topic": "temp",
-        "qos": "2",
-        "datatype": "auto-detect",
-        "broker": "64f4635e02ea4ddb",
-        "nl": false,
-        "rap": true,
-        "rh": 0,
-        "inputs": 0,
-        "x": 110,
-        "y": 180,
-        "wires": [
-            [
-                "0d586b29831bbb04",
-                "e64c7e3054fe2190"
-            ]
-        ]
-    },
-    {
-        "id": "b968ef6ea72d1774",
-        "type": "mqtt in",
-        "z": "f3dd3d99148a99c9",
-        "name": "",
-        "topic": "acelX",
-        "qos": "2",
-        "datatype": "auto-detect",
-        "broker": "64f4635e02ea4ddb",
-        "nl": false,
-        "rap": true,
-        "rh": 0,
-        "inputs": 0,
-        "x": 110,
-        "y": 220,
-        "wires": [
-            [
-                "6da5ca1bc4f77331"
-            ]
-        ]
-    },
-    {
-        "id": "cefd4e67a387ff6c",
-        "type": "mqtt in",
-        "z": "f3dd3d99148a99c9",
-        "name": "",
-        "topic": "acelY",
-        "qos": "2",
-        "datatype": "auto-detect",
-        "broker": "64f4635e02ea4ddb",
-        "nl": false,
-        "rap": true,
-        "rh": 0,
-        "inputs": 0,
-        "x": 110,
-        "y": 260,
-        "wires": [
-            [
-                "a967a08e45fe7052"
-            ]
-        ]
-    },
-    {
-        "id": "8f819ec8dd4c3f12",
-        "type": "mqtt in",
-        "z": "f3dd3d99148a99c9",
-        "name": "",
-        "topic": "acelZ",
-        "qos": "2",
-        "datatype": "auto-detect",
-        "broker": "64f4635e02ea4ddb",
-        "nl": false,
-        "rap": true,
-        "rh": 0,
-        "inputs": 0,
-        "x": 110,
-        "y": 300,
-        "wires": [
-            [
-                "e77ea3e753e0db94"
-            ]
-        ]
-    },
-    {
-        "id": "fd59694b2e706417",
-        "type": "mqtt in",
-        "z": "f3dd3d99148a99c9",
-        "name": "",
-        "topic": "Pluv",
-        "qos": "2",
-        "datatype": "auto-detect",
-        "broker": "64f4635e02ea4ddb",
-        "nl": false,
-        "rap": true,
-        "rh": 0,
-        "inputs": 0,
-        "x": 110,
-        "y": 340,
-        "wires": [
-            [
-                "d111748789037d0e"
-            ]
-        ]
-    },
-    {
-        "id": "0d586b29831bbb04",
-        "type": "ui_gauge",
-        "z": "f3dd3d99148a99c9",
-        "name": "",
-        "group": "ce713a09c9a3e89c",
-        "order": 1,
-        "width": 0,
-        "height": 0,
-        "gtype": "gage",
-        "title": "Temperatura",
-        "label": "units",
-        "format": "{{value}}",
-        "min": "10",
-        "max": "40",
-        "colors": [
-            "#00b500",
-            "#e6e600",
-            "#ca3838"
-        ],
-        "seg1": "",
-        "seg2": "",
-        "diff": false,
-        "className": "",
-        "x": 330,
-        "y": 180,
-        "wires": []
-    },
-    {
-        "id": "6da5ca1bc4f77331",
-        "type": "ui_gauge",
-        "z": "f3dd3d99148a99c9",
-        "name": "",
-        "group": "ce713a09c9a3e89c",
-        "order": 2,
-        "width": 0,
-        "height": 0,
-        "gtype": "gage",
-        "title": "Aceleracion eje X",
-        "label": "units",
-        "format": "{{value}}",
-        "min": "-5",
-        "max": "5",
-        "colors": [
-            "#00b500",
-            "#e6e600",
-            "#ca3838"
-        ],
-        "seg1": "",
-        "seg2": "",
-        "diff": false,
-        "className": "",
-        "x": 350,
-        "y": 220,
-        "wires": []
-    },
-    {
-        "id": "a967a08e45fe7052",
-        "type": "ui_gauge",
-        "z": "f3dd3d99148a99c9",
-        "name": "",
-        "group": "ce713a09c9a3e89c",
-        "order": 3,
-        "width": 0,
-        "height": 0,
-        "gtype": "gage",
-        "title": "Aceleracion eje Y",
-        "label": "units",
-        "format": "{{value}}",
-        "min": "-5",
-        "max": "5",
-        "colors": [
-            "#00b500",
-            "#e6e600",
-            "#ca3838"
-        ],
-        "seg1": "",
-        "seg2": "",
-        "diff": false,
-        "className": "",
-        "x": 350,
-        "y": 260,
-        "wires": []
-    },
-    {
-        "id": "e77ea3e753e0db94",
-        "type": "ui_gauge",
-        "z": "f3dd3d99148a99c9",
-        "name": "",
-        "group": "ce713a09c9a3e89c",
+        "group": "b7f2073d2ca72d08",
         "order": 4,
         "width": 0,
         "height": 0,
-        "gtype": "gage",
-        "title": "Aceleracion eje Z",
-        "label": "units",
-        "format": "{{value}}",
-        "min": "-10",
-        "max": "10",
-        "colors": [
-            "#00b500",
-            "#e6e600",
-            "#ca3838"
-        ],
-        "seg1": "",
-        "seg2": "",
-        "diff": false,
-        "className": "",
-        "x": 350,
-        "y": 300,
-        "wires": []
-    },
-    {
-        "id": "d111748789037d0e",
-        "type": "ui_gauge",
-        "z": "f3dd3d99148a99c9",
-        "name": "",
-        "group": "ce713a09c9a3e89c",
-        "order": 5,
-        "width": 0,
-        "height": 0,
-        "gtype": "compass",
-        "title": "Pluviometro",
-        "label": "units",
-        "format": "{{value}}",
-        "min": "-40",
-        "max": "100",
-        "colors": [
-            "#00b500",
-            "#e6e600",
-            "#ca3838"
-        ],
-        "seg1": "",
-        "seg2": "",
-        "diff": false,
-        "className": "",
-        "x": 330,
-        "y": 340,
-        "wires": []
-    },
-    {
-        "id": "1e88e1d1fcba9c84",
-        "type": "mqtt in",
-        "z": "f3dd3d99148a99c9",
-        "name": "",
-        "topic": "Latitud",
-        "qos": "2",
-        "datatype": "auto-detect",
-        "broker": "64f4635e02ea4ddb",
-        "nl": false,
-        "rap": true,
-        "rh": 0,
-        "inputs": 0,
-        "x": 110,
-        "y": 380,
-        "wires": [
-            [
-                "ad24f3a1cf234356"
-            ]
-        ]
-    },
-    {
-        "id": "2393f7dc757d3df8",
-        "type": "mqtt in",
-        "z": "f3dd3d99148a99c9",
-        "name": "",
-        "topic": "Longitud",
-        "qos": "2",
-        "datatype": "auto-detect",
-        "broker": "64f4635e02ea4ddb",
-        "nl": false,
-        "rap": true,
-        "rh": 0,
-        "inputs": 0,
-        "x": 120,
-        "y": 420,
-        "wires": [
-            [
-                "e04197756f61ef28"
-            ]
-        ]
-    },
-    {
-        "id": "99a4b43637e8d304",
-        "type": "mqtt in",
-        "z": "f3dd3d99148a99c9",
-        "name": "",
-        "topic": "Fecha",
-        "qos": "2",
-        "datatype": "auto-detect",
-        "broker": "64f4635e02ea4ddb",
-        "nl": false,
-        "rap": true,
-        "rh": 0,
-        "inputs": 0,
-        "x": 110,
-        "y": 460,
-        "wires": [
-            [
-                "847b64465729e739"
-            ]
-        ]
-    },
-    {
-        "id": "20391c55a94d1aa6",
-        "type": "mqtt in",
-        "z": "f3dd3d99148a99c9",
-        "name": "",
-        "topic": "Hora",
-        "qos": "2",
-        "datatype": "auto-detect",
-        "broker": "64f4635e02ea4ddb",
-        "nl": false,
-        "rap": true,
-        "rh": 0,
-        "inputs": 0,
-        "x": 110,
-        "y": 500,
-        "wires": [
-            [
-                "880a09b0c5869c61"
-            ]
-        ]
-    },
-    {
-        "id": "ad24f3a1cf234356",
-        "type": "ui_text",
-        "z": "f3dd3d99148a99c9",
-        "group": "ce713a09c9a3e89c",
-        "order": 6,
-        "width": 0,
-        "height": 0,
-        "name": "",
-        "label": "Latitud",
-        "format": "{{msg.payload}}",
-        "layout": "col-center",
-        "className": "",
-        "x": 330,
-        "y": 380,
-        "wires": []
-    },
-    {
-        "id": "e04197756f61ef28",
-        "type": "ui_text",
-        "z": "f3dd3d99148a99c9",
-        "group": "ce713a09c9a3e89c",
-        "order": 7,
-        "width": 0,
-        "height": 0,
-        "name": "",
-        "label": "Longitud",
-        "format": "{{msg.payload}}",
-        "layout": "col-center",
-        "className": "",
-        "x": 340,
-        "y": 420,
-        "wires": []
-    },
-    {
-        "id": "847b64465729e739",
-        "type": "ui_text",
-        "z": "f3dd3d99148a99c9",
-        "group": "ce713a09c9a3e89c",
-        "order": 8,
-        "width": 0,
-        "height": 0,
-        "name": "",
-        "label": "Fecha",
-        "format": "{{msg.payload}}",
-        "layout": "col-center",
-        "className": "",
-        "x": 330,
-        "y": 460,
-        "wires": []
-    },
-    {
-        "id": "880a09b0c5869c61",
-        "type": "ui_text",
-        "z": "f3dd3d99148a99c9",
-        "group": "ce713a09c9a3e89c",
-        "order": 9,
-        "width": 0,
-        "height": 0,
-        "name": "",
-        "label": "Hora",
-        "format": "{{msg.payload}}",
-        "layout": "col-center",
-        "className": "",
-        "x": 330,
-        "y": 500,
-        "wires": []
-    },
-    {
-        "id": "e64c7e3054fe2190",
-        "type": "ui_chart",
-        "z": "f3dd3d99148a99c9",
-        "name": "",
-        "group": "ce713a09c9a3e89c",
-        "order": 10,
-        "width": 0,
-        "height": 0,
-        "label": "chart",
+        "label": "Distancia",
         "chartType": "line",
-        "legend": "false",
+        "legend": "true",
         "xformat": "HH:mm:ss",
         "interpolate": "linear",
         "nodata": "",
         "dot": false,
-        "ymin": "20",
-        "ymax": "40",
+        "ymin": "0",
+        "ymax": "200",
         "removeOlder": 1,
         "removeOlderPoints": "",
-        "removeOlderUnit": "60",
+        "removeOlderUnit": "3600",
         "cutout": 0,
         "useOneColor": false,
         "useUTC": false,
@@ -1026,10 +375,156 @@
         "outputs": 1,
         "useDifferentColor": false,
         "className": "",
-        "x": 510,
-        "y": 180,
+        "x": 400,
+        "y": 440,
         "wires": [
             []
         ]
+    },
+    {
+        "id": "d81a9503ef52c2b0",
+        "type": "ui_chart",
+        "z": "ce1a89efb4367372",
+        "name": "",
+        "group": "ce713a09c9a3e89c",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "label": "Precipitación diaria acumulada",
+        "chartType": "line",
+        "legend": "true",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "0",
+        "ymax": "40",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 1330,
+        "y": 400,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c5e27166f90b8c2f",
+        "type": "ui_chart",
+        "z": "ce1a89efb4367372",
+        "name": "",
+        "group": "ce713a09c9a3e89c",
+        "order": 4,
+        "width": 0,
+        "height": 0,
+        "label": "Distancia",
+        "chartType": "line",
+        "legend": "true",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "0",
+        "ymax": "200",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 1320,
+        "y": 220,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "64f4635e02ea4ddb",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "localhost",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "ce713a09c9a3e89c",
+        "type": "ui_group",
+        "name": "WIFI",
+        "tab": "dbef092eee47c4f0",
+        "order": 1,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "b7f2073d2ca72d08",
+        "type": "ui_group",
+        "name": "GPRS",
+        "tab": "dbef092eee47c4f0",
+        "order": 2,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "dbef092eee47c4f0",
+        "type": "ui_tab",
+        "name": "V5",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
     }
 ]
