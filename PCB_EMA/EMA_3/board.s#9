@@ -17098,6 +17098,14 @@ naming: grid - package width</description>
 <wire x1="154.94" y1="17.78" x2="147.32" y2="17.78" width="0.1524" layer="91"/>
 <label x="147.32" y="17.78" size="1.778" layer="95"/>
 </segment>
+<segment>
+<pinref part="." gate="A" pin="1"/>
+<wire x1="177.8" y1="35.56" x2="170.18" y2="35.56" width="0.1524" layer="91"/>
+<pinref part="." gate="A" pin="2"/>
+<wire x1="177.8" y1="33.02" x2="170.18" y2="33.02" width="0.1524" layer="91"/>
+<wire x1="170.18" y1="35.56" x2="170.18" y2="33.02" width="0.1524" layer="91"/>
+<label x="167.64" y="35.56" size="1.778" layer="95"/>
+</segment>
 </net>
 <net name="VCC" class="0">
 <segment>

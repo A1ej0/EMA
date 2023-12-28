@@ -17249,13 +17249,6 @@ naming: grid - package width</description>
 <label x="187.96" y="-7.62" size="1.778" layer="95"/>
 </segment>
 </net>
-<net name="N$28" class="0">
-<segment>
-<pinref part="BOARD1" gate="G$1" pin="D15"/>
-<pinref part="JP1" gate="A" pin="13"/>
-<wire x1="83.82" y1="50.8" x2="104.14" y2="50.8" width="0.1524" layer="91"/>
-</segment>
-</net>
 <net name="3V3" class="0">
 <segment>
 <pinref part="BOARD1" gate="G$1" pin="3V3"/>
@@ -17588,6 +17581,12 @@ naming: grid - package width</description>
 <pinref part="." gate="A" pin="5"/>
 <wire x1="177.8" y1="25.4" x2="170.18" y2="25.4" width="0.1524" layer="91"/>
 <label x="165.1" y="25.4" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="BOARD1" gate="G$1" pin="D15"/>
+<pinref part="JP1" gate="A" pin="13"/>
+<wire x1="83.82" y1="50.8" x2="104.14" y2="50.8" width="0.1524" layer="91"/>
+<label x="109.22" y="50.8" size="1.778" layer="95"/>
 </segment>
 </net>
 </nets>

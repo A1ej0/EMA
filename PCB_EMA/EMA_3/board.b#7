@@ -3465,10 +3465,10 @@ design rules under a new name.</description>
 <attribute name="POPULARITY" value="64" x="17" y="29" size="1.778" layer="27" display="off"/>
 <attribute name="VALUE" x="15.73" y="25.825" size="1.27" layer="27"/>
 </element>
-<element name="JP17" library="pinhead" library_urn="urn:adsk.eagle:library:325" package="1X01" package3d_urn="urn:adsk.eagle:package:22485/2" value="" x="103.5" y="107" smashed="yes">
-<attribute name="NAME" x="102.1538" y="108.8288" size="1.27" layer="25" ratio="10"/>
-<attribute name="POPULARITY" value="64" x="103.5" y="107" size="1.778" layer="27" display="off"/>
-<attribute name="VALUE" x="102.23" y="103.825" size="1.27" layer="27"/>
+<element name="JP17" library="pinhead" library_urn="urn:adsk.eagle:library:325" package="1X01" package3d_urn="urn:adsk.eagle:package:22485/2" value="" x="100" y="106" smashed="yes">
+<attribute name="NAME" x="98.6538" y="107.8288" size="1.27" layer="25" ratio="10"/>
+<attribute name="POPULARITY" value="64" x="100" y="106" size="1.778" layer="27" display="off"/>
+<attribute name="VALUE" x="98.73" y="102.825" size="1.27" layer="27"/>
 </element>
 <element name="JP18" library="pinhead" library_urn="urn:adsk.eagle:library:325" package="1X01" package3d_urn="urn:adsk.eagle:package:22485/2" value="" x="97" y="97.5" smashed="yes">
 <attribute name="NAME" x="95.6538" y="99.3288" size="1.27" layer="25" ratio="10"/>

@@ -3585,7 +3585,7 @@ design rules under a new name.</description>
 <attribute name="POPULARITY" value="64" x="60.5" y="36.5" size="1.778" layer="27" display="off"/>
 <attribute name="VALUE" x="59.23" y="33.325" size="1.27" layer="27"/>
 </element>
-<element name="X1" library="con-ptr500" library_urn="urn:adsk.eagle:library:181" package="AK500/4-H" package3d_urn="urn:adsk.eagle:package:9908/1" value="" x="107.5" y="74.5" smashed="yes" rot="R90">
+<element name="BUS_B" library="con-ptr500" library_urn="urn:adsk.eagle:library:181" package="AK500/4-H" package3d_urn="urn:adsk.eagle:package:9908/1" value="" x="107.5" y="74.5" smashed="yes" rot="R90">
 <attribute name="MF" value="" x="107.5" y="74.5" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="MPN" value="" x="107.5" y="74.5" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="NAME" x="103.944" y="64.4162" size="1.778" layer="25" ratio="10" rot="R90"/>
@@ -3594,7 +3594,7 @@ design rules under a new name.</description>
 <attribute name="POPULARITY" value="0" x="107.5" y="74.5" size="1.778" layer="27" rot="R90" display="off"/>
 <attribute name="VALUE" x="117.025" y="64.4162" size="1.778" layer="27" ratio="10" rot="R90"/>
 </element>
-<element name="X2" library="con-ptr500" library_urn="urn:adsk.eagle:library:181" package="AK500/2-H" package3d_urn="urn:adsk.eagle:package:9901/1" value="" x="67" y="9.5" smashed="yes">
+<element name="VBAT_B" library="con-ptr500" library_urn="urn:adsk.eagle:library:181" package="AK500/2-H" package3d_urn="urn:adsk.eagle:package:9901/1" value="" x="67" y="9.5" smashed="yes">
 <attribute name="MF" value="" x="67" y="9.5" size="1.778" layer="27" display="off"/>
 <attribute name="MPN" value="" x="67" y="9.5" size="1.778" layer="27" display="off"/>
 <attribute name="NAME" x="61.92" y="13.056" size="1.778" layer="25" ratio="10"/>
@@ -3749,8 +3749,8 @@ design rules under a new name.</description>
 <contactref element="JP18" pad="1"/>
 <contactref element="JP19" pad="1"/>
 <contactref element="JP20" pad="1"/>
-<contactref element="X1" pad="3"/>
-<contactref element="X2" pad="2"/>
+<contactref element="BUS_B" pad="3"/>
+<contactref element="VBAT_B" pad="2"/>
 </signal>
 <signal name="VCC">
 <contactref element="BOARD1" pad="VIN"/>
@@ -3792,7 +3792,7 @@ design rules under a new name.</description>
 <wire x1="112.51" y1="108.49" x2="112.51" y2="102.8" width="1.27" layer="16"/>
 <wire x1="50.6" y1="74" x2="38.25" y2="74" width="0.6096" layer="16"/>
 <wire x1="38.25" y1="74" x2="38.23" y2="74.02" width="0.6096" layer="16"/>
-<contactref element="X1" pad="4"/>
+<contactref element="BUS_B" pad="4"/>
 <wire x1="109.97" y1="93.4" x2="110" y2="93.37" width="1.27" layer="16"/>
 <wire x1="110" y1="93.37" x2="110" y2="86" width="1.27" layer="16"/>
 <wire x1="110" y1="86" x2="107.5" y2="83.5" width="1.27" layer="16"/>
@@ -3829,7 +3829,7 @@ design rules under a new name.</description>
 <wire x1="65" y1="46.5" x2="65" y2="105" width="0.6096" layer="1"/>
 <wire x1="65" y1="105" x2="67.02" y2="107.02" width="0.6096" layer="16"/>
 <wire x1="67.02" y1="107.02" x2="76" y2="107.02" width="0.6096" layer="16"/>
-<contactref element="X1" pad="2"/>
+<contactref element="BUS_B" pad="2"/>
 <wire x1="107.43" y1="93.4" x2="107.43" y2="88.93" width="0.6096" layer="16"/>
 <wire x1="105.4892" y1="72.0108" x2="107.5" y2="72.0108" width="0.6096" layer="16"/>
 <wire x1="107.43" y1="88.93" x2="103.5" y2="85" width="0.6096" layer="16"/>
@@ -3877,7 +3877,7 @@ design rules under a new name.</description>
 <wire x1="76" y1="99.4" x2="69.4" y2="99.4" width="0.6096" layer="16"/>
 <wire x1="68.5" y1="98.5" x2="68.5" y2="98" width="0.6096" layer="16"/>
 <wire x1="69.4" y1="99.4" x2="68.5" y2="98.5" width="0.6096" layer="16"/>
-<contactref element="X1" pad="1"/>
+<contactref element="BUS_B" pad="1"/>
 <wire x1="104.89" y1="93.4" x2="101.5" y2="90.01" width="0.6096" layer="16"/>
 <wire x1="101.5" y1="90.01" x2="101.5" y2="70" width="0.6096" layer="16"/>
 <wire x1="101.5" y1="70" x2="104.5184" y2="66.9816" width="0.6096" layer="16"/>
@@ -4153,7 +4153,7 @@ design rules under a new name.</description>
 <wire x1="34.54" y1="20.54" x2="34.5" y2="20.5" width="1.27" layer="16"/>
 <wire x1="14.73" y1="3" x2="14.73" y2="5.73" width="1.27" layer="16"/>
 <wire x1="14.73" y1="5.73" x2="15" y2="6" width="1.27" layer="16"/>
-<contactref element="X2" pad="1"/>
+<contactref element="VBAT_B" pad="1"/>
 <wire x1="64.4854" y1="9.5" x2="60.9854" y2="6" width="1.27" layer="16"/>
 <wire x1="60.9854" y1="6" x2="33" y2="6" width="1.27" layer="16"/>
 </signal>

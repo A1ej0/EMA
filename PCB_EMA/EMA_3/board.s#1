@@ -17478,10 +17478,6 @@ Es handelt sich hierbei um AK500 in horizontaler Ausführung.</description>
 <label x="45.72" y="0" size="1.778" layer="95"/>
 </segment>
 <segment>
-<wire x1="35.56" y1="15.24" x2="25.4" y2="15.24" width="0.1524" layer="91"/>
-<label x="25.4" y="15.24" size="1.778" layer="95"/>
-</segment>
-<segment>
 <pinref part="LEDS" gate="A" pin="6"/>
 <wire x1="0" y1="2.54" x2="-10.16" y2="2.54" width="0.1524" layer="91"/>
 <label x="-15.24" y="2.54" size="1.778" layer="95"/>
@@ -17611,10 +17607,6 @@ Es handelt sich hierbei um AK500 in horizontaler Ausführung.</description>
 <pinref part="JP2" gate="A" pin="15"/>
 <wire x1="43.18" y1="45.72" x2="27.94" y2="45.72" width="0.1524" layer="91"/>
 <label x="15.24" y="45.72" size="1.778" layer="95"/>
-</segment>
-<segment>
-<wire x1="35.56" y1="12.7" x2="25.4" y2="12.7" width="0.1524" layer="91"/>
-<label x="25.4" y="12.7" size="1.778" layer="95"/>
 </segment>
 <segment>
 <wire x1="104.14" y1="10.16" x2="99.06" y2="10.16" width="0.1524" layer="91"/>
@@ -17872,10 +17864,6 @@ Es handelt sich hierbei um AK500 in horizontaler Ausführung.</description>
 </net>
 <net name="DSCK" class="0">
 <segment>
-<wire x1="35.56" y1="10.16" x2="25.4" y2="10.16" width="0.1524" layer="91"/>
-<label x="25.4" y="10.16" size="1.778" layer="95"/>
-</segment>
-<segment>
 <pinref part="BOARD1" gate="G$1" pin="D13"/>
 <pinref part="JP2" gate="A" pin="13"/>
 <wire x1="43.18" y1="50.8" x2="27.94" y2="50.8" width="0.1524" layer="91"/>
@@ -17888,10 +17876,6 @@ Es handelt sich hierbei um AK500 in horizontaler Ausführung.</description>
 </segment>
 </net>
 <net name="DMOSI" class="0">
-<segment>
-<wire x1="35.56" y1="7.62" x2="25.4" y2="7.62" width="0.1524" layer="91"/>
-<label x="25.4" y="7.62" size="1.778" layer="95"/>
-</segment>
 <segment>
 <pinref part="BOARD1" gate="G$1" pin="D14"/>
 <pinref part="JP2" gate="A" pin="11"/>
@@ -17906,10 +17890,6 @@ Es handelt sich hierbei um AK500 in horizontaler Ausführung.</description>
 </net>
 <net name="DRST" class="0">
 <segment>
-<wire x1="35.56" y1="5.08" x2="25.4" y2="5.08" width="0.1524" layer="91"/>
-<label x="25.4" y="5.08" size="1.778" layer="95"/>
-</segment>
-<segment>
 <pinref part="BOARD1" gate="G$1" pin="D2"/>
 <pinref part="JP1" gate="A" pin="12"/>
 <wire x1="83.82" y1="53.34" x2="104.14" y2="53.34" width="0.1524" layer="91"/>
@@ -17922,10 +17902,6 @@ Es handelt sich hierbei um AK500 in horizontaler Ausführung.</description>
 </segment>
 </net>
 <net name="DCS" class="0">
-<segment>
-<wire x1="35.56" y1="2.54" x2="25.4" y2="2.54" width="0.1524" layer="91"/>
-<label x="25.4" y="2.54" size="1.778" layer="95"/>
-</segment>
 <segment>
 <pinref part="BOARD1" gate="G$1" pin="D4"/>
 <pinref part="JP1" gate="A" pin="11"/>
