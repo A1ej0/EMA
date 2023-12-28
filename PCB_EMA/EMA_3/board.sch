@@ -17160,6 +17160,9 @@ Es handelt sich hierbei um AK500 in horizontaler Ausführung.</description>
 <part name="BUS_B" library="con-ptr500" library_urn="urn:adsk.eagle:library:181" deviceset="AK500/4-H" device="" package3d_urn="urn:adsk.eagle:package:9908/1"/>
 <part name="VBAT_B" library="con-ptr500" library_urn="urn:adsk.eagle:library:181" deviceset="AK500/2-H" device="" package3d_urn="urn:adsk.eagle:package:9901/1"/>
 <part name="JP21" library="pinhead" library_urn="urn:adsk.eagle:library:325" deviceset="PINHD-1X1" device="" package3d_urn="urn:adsk.eagle:package:22485/2"/>
+<part name="JP22" library="pinhead" library_urn="urn:adsk.eagle:library:325" deviceset="PINHD-1X1" device="" package3d_urn="urn:adsk.eagle:package:22485/2"/>
+<part name="JP23" library="pinhead" library_urn="urn:adsk.eagle:library:325" deviceset="PINHD-1X1" device="" package3d_urn="urn:adsk.eagle:package:22485/2"/>
+<part name="JP24" library="pinhead" library_urn="urn:adsk.eagle:library:325" deviceset="PINHD-1X1" device="" package3d_urn="urn:adsk.eagle:package:22485/2"/>
 </parts>
 <sheets>
 <sheet>
@@ -17375,6 +17378,18 @@ Es handelt sich hierbei um AK500 in horizontaler Ausführung.</description>
 <instance part="JP21" gate="G$1" x="213.36" y="-40.64" smashed="yes">
 <attribute name="NAME" x="207.01" y="-37.465" size="1.778" layer="95"/>
 <attribute name="VALUE" x="207.01" y="-45.72" size="1.778" layer="96"/>
+</instance>
+<instance part="JP22" gate="G$1" x="213.36" y="-53.34" smashed="yes">
+<attribute name="NAME" x="207.01" y="-50.165" size="1.778" layer="95"/>
+<attribute name="VALUE" x="207.01" y="-58.42" size="1.778" layer="96"/>
+</instance>
+<instance part="JP23" gate="G$1" x="226.06" y="-40.64" smashed="yes">
+<attribute name="NAME" x="219.71" y="-37.465" size="1.778" layer="95"/>
+<attribute name="VALUE" x="219.71" y="-45.72" size="1.778" layer="96"/>
+</instance>
+<instance part="JP24" gate="G$1" x="226.06" y="-53.34" smashed="yes">
+<attribute name="NAME" x="219.71" y="-50.165" size="1.778" layer="95"/>
+<attribute name="VALUE" x="219.71" y="-58.42" size="1.778" layer="96"/>
 </instance>
 </instances>
 <busses>
@@ -17609,6 +17624,21 @@ Es handelt sich hierbei um AK500 in horizontaler Ausführung.</description>
 <pinref part="JP21" gate="G$1" pin="1"/>
 <wire x1="210.82" y1="-40.64" x2="203.2" y2="-40.64" width="0.1524" layer="91"/>
 <label x="203.2" y="-40.64" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="JP22" gate="G$1" pin="1"/>
+<wire x1="210.82" y1="-53.34" x2="203.2" y2="-53.34" width="0.1524" layer="91"/>
+<label x="203.2" y="-53.34" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="JP23" gate="G$1" pin="1"/>
+<wire x1="223.52" y1="-40.64" x2="218.44" y2="-40.64" width="0.1524" layer="91"/>
+<label x="215.9" y="-40.64" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="JP24" gate="G$1" pin="1"/>
+<wire x1="223.52" y1="-53.34" x2="218.44" y2="-53.34" width="0.1524" layer="91"/>
+<label x="215.9" y="-53.34" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="VCC" class="0">

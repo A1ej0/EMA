@@ -3455,11 +3455,11 @@ design rules under a new name.</description>
 <attribute name="POPULARITY" value="28" x="47" y="21.5" size="1.778" layer="27" display="off"/>
 <attribute name="VALUE" x="44.46" y="18.452" size="1.27" layer="27" ratio="10"/>
 </element>
-<element name="C5" library="rcl" library_urn="urn:adsk.eagle:library:334" package="E3,5-8" package3d_urn="urn:adsk.eagle:package:23360/2" value="470uF" x="65.2" y="25.478" smashed="yes" rot="R270">
-<attribute name="NAME" x="67.232" y="22.43" size="1.27" layer="25" ratio="10" rot="R270"/>
-<attribute name="POPULARITY" value="13" x="65.2" y="25.478" size="1.778" layer="27" rot="R270" display="off"/>
-<attribute name="SPICEPREFIX" value="C" x="65.2" y="25.478" size="1.778" layer="27" rot="R270" display="off"/>
-<attribute name="VALUE" x="62.025" y="22.43" size="1.27" layer="27" ratio="10" rot="R270"/>
+<element name="C5" library="rcl" library_urn="urn:adsk.eagle:library:334" package="E3,5-8" package3d_urn="urn:adsk.eagle:package:23360/2" value="470uF" x="65.2" y="25.978" smashed="yes" rot="R270">
+<attribute name="NAME" x="67.232" y="22.93" size="1.27" layer="25" ratio="10" rot="R270"/>
+<attribute name="POPULARITY" value="13" x="65.2" y="25.978" size="1.778" layer="27" rot="R270" display="off"/>
+<attribute name="SPICEPREFIX" value="C" x="65.2" y="25.978" size="1.778" layer="27" rot="R270" display="off"/>
+<attribute name="VALUE" x="62.025" y="22.93" size="1.27" layer="27" ratio="10" rot="R270"/>
 </element>
 <element name="_" library="pinhead" library_urn="urn:adsk.eagle:library:325" package="1X06" package3d_urn="urn:adsk.eagle:package:22472/2" value="" x="41.16" y="53.2" smashed="yes">
 <attribute name="NAME" x="33.4638" y="55.0288" size="1.27" layer="25" ratio="10"/>
@@ -4119,8 +4119,8 @@ design rules under a new name.</description>
 <wire x1="27.8" y1="25.4" x2="27.8" y2="18.01" width="1.27" layer="16"/>
 <wire x1="27.8" y1="18.01" x2="28" y2="17.81" width="1.27" layer="16"/>
 <wire x1="48" y1="25.4" x2="27.8" y2="25.4" width="1.27" layer="16"/>
-<wire x1="65.2" y1="27.256" x2="61.7" y2="27.256" width="1.27" layer="16"/>
-<wire x1="61.7" y1="27.256" x2="59.844" y2="25.4" width="1.27" layer="16"/>
+<wire x1="65.2" y1="27.756" x2="62.2" y2="27.756" width="1.27" layer="16"/>
+<wire x1="62.2" y1="27.756" x2="59.844" y2="25.4" width="1.27" layer="16"/>
 <wire x1="59.844" y1="25.4" x2="48" y2="25.4" width="1.27" layer="16"/>
 <wire x1="47.51" y1="31.2" x2="47.51" y2="25.89" width="1.27" layer="16"/>
 <wire x1="47.51" y1="25.89" x2="48" y2="25.4" width="1.27" layer="16"/>

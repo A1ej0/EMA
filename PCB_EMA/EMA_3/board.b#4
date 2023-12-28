@@ -3765,7 +3765,6 @@ design rules under a new name.</description>
 <contactref element="HW-125" pad="5"/>
 <wire x1="45.73" y1="13.5" x2="45.73" y2="17.73" width="1.27" layer="16"/>
 <wire x1="45.73" y1="17.73" x2="46" y2="18" width="1.27" layer="16"/>
-<wire x1="110.19" y1="16.19" x2="113" y2="16.19" width="1.27" layer="16"/>
 <wire x1="113" y1="50.81" x2="115.19" y2="50.81" width="1.27" layer="16"/>
 <wire x1="118" y1="48" x2="118" y2="19" width="1.27" layer="16"/>
 <wire x1="118" y1="19" x2="115.19" y2="16.19" width="1.27" layer="16"/>
@@ -3798,9 +3797,10 @@ design rules under a new name.</description>
 <wire x1="110" y1="93.37" x2="110" y2="86" width="1.27" layer="16"/>
 <wire x1="110" y1="86" x2="107.5" y2="83.5" width="1.27" layer="16"/>
 <wire x1="107.5" y1="83.5" x2="107.5" y2="82.0184" width="1.27" layer="16"/>
-<wire x1="55" y1="21" x2="69" y2="21" width="1.27" layer="16"/>
-<wire x1="98.81" y1="16.19" x2="110.19" y2="16.19" width="1.27" layer="16"/>
-<wire x1="69" y1="21" x2="75.5" y2="27.5" width="1.27" layer="16"/>
+<wire x1="68.5" y1="20.5" x2="55.5" y2="20.5" width="1.27" layer="16"/>
+<wire x1="55" y1="21" x2="55.5" y2="20.5" width="1.27" layer="16"/>
+<wire x1="98.81" y1="16.19" x2="113" y2="16.19" width="1.27" layer="16"/>
+<wire x1="68.5" y1="20.5" x2="75.5" y2="27.5" width="1.27" layer="16"/>
 <wire x1="75.5" y1="27.5" x2="87.5" y2="27.5" width="1.27" layer="16"/>
 <wire x1="87.5" y1="27.5" x2="98.81" y2="16.19" width="1.27" layer="16"/>
 </signal>

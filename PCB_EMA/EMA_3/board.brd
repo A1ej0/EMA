@@ -3608,6 +3608,21 @@ design rules under a new name.</description>
 <attribute name="POPULARITY" value="64" x="22" y="105.5" size="1.778" layer="27" display="off"/>
 <attribute name="VALUE" x="20.73" y="102.325" size="1.27" layer="27"/>
 </element>
+<element name="JP22" library="pinhead" library_urn="urn:adsk.eagle:library:325" package="1X01" package3d_urn="urn:adsk.eagle:package:22485/2" value="" x="89" y="4.5" smashed="yes">
+<attribute name="NAME" x="87.6538" y="6.3288" size="1.27" layer="25" ratio="10"/>
+<attribute name="POPULARITY" value="64" x="89" y="4.5" size="1.778" layer="27" display="off"/>
+<attribute name="VALUE" x="87.73" y="1.325" size="1.27" layer="27"/>
+</element>
+<element name="JP23" library="pinhead" library_urn="urn:adsk.eagle:library:325" package="1X01" package3d_urn="urn:adsk.eagle:package:22485/2" value="" x="51.5" y="14" smashed="yes">
+<attribute name="NAME" x="50.1538" y="15.8288" size="1.27" layer="25" ratio="10"/>
+<attribute name="POPULARITY" value="64" x="51.5" y="14" size="1.778" layer="27" display="off"/>
+<attribute name="VALUE" x="50.23" y="10.825" size="1.27" layer="27"/>
+</element>
+<element name="JP24" library="pinhead" library_urn="urn:adsk.eagle:library:325" package="1X01" package3d_urn="urn:adsk.eagle:package:22485/2" value="" x="12.5" y="9" smashed="yes">
+<attribute name="NAME" x="11.1538" y="10.8288" size="1.27" layer="25" ratio="10"/>
+<attribute name="POPULARITY" value="64" x="12.5" y="9" size="1.778" layer="27" display="off"/>
+<attribute name="VALUE" x="11.23" y="5.825" size="1.27" layer="27"/>
+</element>
 </elements>
 <signals>
 <signal name="N$1">
@@ -3756,11 +3771,14 @@ design rules under a new name.</description>
 <contactref element="BUS_B" pad="3"/>
 <contactref element="VBAT_B" pad="2"/>
 <contactref element="JP21" pad="1"/>
+<contactref element="JP22" pad="1"/>
+<contactref element="JP23" pad="1"/>
+<contactref element="JP24" pad="1"/>
 </signal>
 <signal name="VCC">
 <contactref element="BOARD1" pad="VIN"/>
 <contactref element="JP2" pad="15"/>
-<wire x1="59" y1="117" x2="107" y2="117" width="1.27" layer="1"/>
+<wire x1="59" y1="117" x2="102.5" y2="117" width="1.27" layer="1"/>
 <wire x1="59" y1="117" x2="55" y2="113" width="1.27" layer="1"/>
 <contactref element="R6" pad="2"/>
 <contactref element="REG5V" pad="2"/>
@@ -3777,7 +3795,8 @@ design rules under a new name.</description>
 <wire x1="115.19" y1="50.81" x2="118" y2="48" width="1.27" layer="16"/>
 <contactref element="BUS" pad="4"/>
 <contactref element="DISPLAY" pad="3"/>
-<wire x1="107" y1="117" x2="112.51" y2="111.49" width="1.27" layer="1"/>
+<wire x1="112.5" y1="108.5" x2="111" y2="108.5" width="1.27" layer="1"/>
+<wire x1="111" y1="108.5" x2="102.5" y2="117" width="1.27" layer="1"/>
 <wire x1="112.51" y1="102.8" x2="112.51" y2="99.01" width="1.27" layer="16"/>
 <wire x1="112.51" y1="99.01" x2="109.97" y2="96.47" width="1.27" layer="16"/>
 <wire x1="109.97" y1="93.4" x2="109.97" y2="96.47" width="1.27" layer="16"/>
@@ -3791,8 +3810,6 @@ design rules under a new name.</description>
 <wire x1="55" y1="113" x2="55" y2="74" width="1.27" layer="1"/>
 <wire x1="55" y1="74" x2="55" y2="21" width="1.27" layer="1"/>
 <wire x1="56" y1="74" x2="55" y2="74" width="1.27" layer="1"/>
-<wire x1="112.51" y1="111.49" x2="112.51" y2="108.51" width="1.27" layer="1"/>
-<wire x1="112.51" y1="108.51" x2="112.5" y2="108.5" width="1.27" layer="1"/>
 <wire x1="112.5" y1="108.5" x2="112.51" y2="108.49" width="1.27" layer="16"/>
 <wire x1="112.51" y1="108.49" x2="112.51" y2="102.8" width="1.27" layer="16"/>
 <wire x1="50.6" y1="74" x2="38.25" y2="74" width="0.6096" layer="16"/>
