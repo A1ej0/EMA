@@ -7,7 +7,7 @@
   
 
 <div align="right">
-<img src="Sin%20nombre.png" align="right" height="220" width="" />
+<img src="Ssin%20nombre.png" align="right" height="220" width="" />
 </div>  
   
 
