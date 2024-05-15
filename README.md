@@ -1,5 +1,5 @@
 <div align="center">
-<img src="https://uupload.wikimedia.org/wikipedia/commons/thumb/5/5a/Servicio_Geol%C3%B3gico_Colombiano_logo.svg/1200px-Servicio_Geol%C3%B3gico_Colombiano_logo.svg.png" align="center" height="130" width="" />
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Servicio_Geol%C3%B3gico_Colombiano_logo.svg/1200px-Servicio_Geol%C3%B3gico_Colombiano_logo.svg.png" align="center" height="130" width="" />
 </div>  
   
 
@@ -7,7 +7,7 @@
   
 
 <div align="right">
-<img src="Ssin%20nombre.png" align="right" height="220" width="" />
+<img src="sin%20nombre.png" align="right" height="220" width="" />
 </div>  
   
 
