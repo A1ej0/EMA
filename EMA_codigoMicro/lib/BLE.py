@@ -43,6 +43,7 @@ _ADV_APPEARANCE_GENERIC_COMPUTER = const(128)
 class BLEUART:
     def __init__(self, ble, name, rxbuf=1000):
         self._ble = ble
+        time.sleep(0.5)
         self._ble.active(True)
         #self._ble.config(mtu=200)
         self._ble.irq(self._irq)

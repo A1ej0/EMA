@@ -1,0 +1,20 @@
+Ajustes para conexion GRPS con MQTT:
+
+apn:internet.comcel.com.co
+host:138.128.244.81
+puerto:1883
+user:EMA
+claveMqtt:SGCEMA
+
+Ajustes wifi:
+
+red:Alejo
+clave:Alejo1993
+
+Bluetooth:
+
+nombre:EMA1
+
+
+
+
