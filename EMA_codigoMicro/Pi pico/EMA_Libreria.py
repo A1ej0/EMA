@@ -83,9 +83,8 @@ class EMA():
         
     #Captura Pluviometro
     def Pluviometro(self,bus):
-        global UmbralPluv
         try:
-            Pluv=bus.readfrom(88, 2).decode().strip("\x00")
+            Pluv=bus.readfrom(42, 2).decode().strip("\x00")
         except:
             Pluv=-1         
             

@@ -1,6 +1,6 @@
 from time import sleep
 import _thread
-from machine import SoftI2C, Pin
+from machine import SoftI2C, Pin, UART
 from i2cslave import i2c_slave
 import utime
 from EMA_Libreria import EMA
@@ -9,23 +9,27 @@ from ulora import LoRa, ModemConfig, SPIConfig
 trama = [0] * 10
 EMA = EMA()
 counter =0
+ress=0
+pluvi=0
 cadenaA="@00$00#"
 i2c0 = SoftI2C(scl=Pin(15), sda=Pin(14), freq=400000, timeout=5000)
 i2c1 = SoftI2C(scl=Pin(27), sda=Pin(26), freq=400000, timeout=5000)
 i2c2 = SoftI2C(scl=Pin(21), sda=Pin(20), freq=400000, timeout=5000)
 i2c3 = SoftI2C(scl=Pin(19), sda=Pin(18), freq=400000, timeout=5000)
 i2c4 = SoftI2C(scl=Pin(17), sda=Pin(16), freq=400000, timeout=5000)
+serie=UART(0, baudrate=9600, tx=Pin(0), rx=Pin(1))
 s_i2c = i2c_slave(0,sda=4,scl=5,slaveAddress=0x41)
 canales =[i2c0,i2c1,i2c2,i2c3,i2c4]
 
 flag=False
 
 def on_recv(payload):
-    global flag , trama
+    global flag , trama,serie
 #    print("From:", payload.header_from)
     try:
         LoRaM=payload.message
-        print("Received:", LoRaM)
+        serie.write(str(LoRaM))
+        #print("Received:", LoRaM)
         trama[-1]=LoRaM.decode()
     #    print("RSSI: {}; SNR: {}".format(payload.rssi, payload.snr))
         lora.close()
@@ -46,7 +50,7 @@ SERVER_ADDRESS = 2
 
 # initialise radio
 def idSensor(direccion):
-    idsensor ={96:'MCP4725',119:'BMP-180',104:'MPU-9250/6500',12:'Magnetrometro',88:'Pluviometro',80:'Pluviometro'}
+    idsensor ={96:'MCP4725',119:'BMP-180',104:'MPU-9250/6500',12:'Magnetrometro',42:'Pluviometro',80:'Pluviometro'}
     try:
         return idsensor[direccion]
     except KeyError:
@@ -54,7 +58,7 @@ def idSensor(direccion):
 
 
 def main():
-    global trama, cadenaA, canales
+    global trama, cadenaA, canales,pluvi
     while True:
         for i in range(9):
             trama[i]=0
@@ -68,9 +72,10 @@ def main():
             #print("Canal "+str(a) )
             a=a+1
             dispositivos =canal.scan()
+            #serie.write(str(dispositivos)+"\n")
             if len(dispositivos)<15:
                 for dispositivo in dispositivos:
-                    #print(str(dispositivo)+"/"+str(idSensor(dispositivo)))
+                    serie.write(str(dispositivo)+"/"+str(idSensor(dispositivo))+"\n")
                     if dispositivo==12:
                         try:
                             magnetrometro=EMA.MPU(canal,2)
@@ -107,10 +112,16 @@ def main():
                         #print(temp)
                         trama[6] = temp
                         
-                    elif dispositivo==88:
-                        pluviometro=EMA.Pluviometro(canal)
+                    elif dispositivo==42:
+                        try:
+                            temp=int(EMA.Pluviometro(canal))
+                            pluvi=pluvi+temp
+                            serie.write("i2c:  "+str(temp)+"   pluvi:  "+str(pluvi)+"\n")
+                        except:
+                            serie.write("Error lectura pluviometro \n")
                         #print(pluviometro)
-                        trama[7] = pluviometro
+                        #serie.write(str(pluviometro)+"\n")
+                        trama[7] = pluvi
                         
                     elif dispositivo==80:
                         distancia=EMA.distancia(canal)
@@ -119,7 +130,8 @@ def main():
                         
                     else:
                         pass
-        print(trama)
+        #print(trama)
+        serie.write(str(trama)+"\n")
         cadena ="$".join(str(valor) for valor in trama)
         cadena ='@'+cadena+'#'
         cadenaA=[ord(c) for c in cadena]
@@ -141,8 +153,12 @@ while True:
         pass
     
     try:
+        
         if counter ==len(cadenaA):
             counter =0
+            ress=ress+1
+        if ress==20:
+            flag=False
         if s_i2c.any():
             pass
             #print(s_i2c.get())
@@ -152,7 +168,4 @@ while True:
             counter = counter + 1
     except:
         pass
-    
-    print("hola")
         
-
