@@ -1,9 +1,7 @@
 from EMA_Libreria import EMA
 import time
 import _thread
-
 EMA = EMA()
-EMA.calibracionTemp()
 
 temp= 0
 datos = [0,0,0,0,0,0,0,0,0,0,0]
@@ -44,7 +42,7 @@ def SecondCore():
 
     while True:
         if not frecuencia:
-            EMA.AlertSms(lluvias,distanci,True)
+            #EMA.AlertSms(lluvias,distanci,True)
             #if not EMA.envioDatosSim(datos):
                 #pass
             #else:
@@ -61,28 +59,34 @@ def SecondCore():
         
         
 _thread.start_new_thread(FourthCore,())        
-_thread.start_new_thread(ThirdCore,())
+#_thread.start_new_thread(ThirdCore,())
 _thread.start_new_thread(SecondCore,())
 
 
 while True:
     #Captura de datos
-    temp = EMA.Temperature()
+    #temp = EMA.Temperature()
     fechaHora = EMA.rtc()
-    distanci=EMA.distancia()
-    print("Distancia: "+str(distanci)+"\n")
-    calidad=EMA.calidadAgua()
+    #distanci=EMA.distancia()
+    #print("Distancia: "+str(distanci)+"\n")
     hora=str(fechaHora[4])+":"+str(fechaHora[5])+":"+str(fechaHora[6])
-    fecha=str(fechaHora[2])+"/"+str(fechaHora[1])+"/"+str(fechaHora[0])
-
+    fecha=str(fechaHora[2])+"/"+str(fechaHora[1])+"/"+str(fechaHora[0])[2:]
+    date=fecha+"-"+hora
+    
+    calidadtemp=EMA.CalidadLoRa()
+    if calidadtemp==-1:
+        pass
+    else:
+        calidad=calidadtemp
+        EMA.escribirOLED(date)
     #Organizacion de datos capturados en una lista
     datos= [temp,acel[0],acel[1],acel[2],lluvias,lecturaGPS2[0],lecturaGPS2[1],fecha,hora,calidad,distanci]
     
     #Captura de lluvias
     if count>=10:
-        lluvia=EMA.Pluviometro()*0.149
-        lluvias=lluvias+float(lluvia)
-        print("\n\nValor de lluvia: "+str(lluvias))
+        #lluvia=EMA.Pluviometro()*0.149
+        #lluvias=lluvias+float(lluvia)
+        #print("\n\nValor de lluvia: "+str(lluvias))
         
         if tempoFecha==0:
             auxFecha=fechaHora[2]
@@ -90,7 +94,7 @@ while True:
         else:
             if auxFecha != fechaHora[2]:
                 EMA.AlertSms(lluvias,False)
-                lluvias=0
+                #lluvias=0
                 count2=0
                 tempoFecha=0
         count2=count2+1
@@ -106,6 +110,5 @@ while True:
         print("SD sobreescrita")
         textoRaw=""
         count=0
-    print(count)
     count=count+1
     time.sleep(1)

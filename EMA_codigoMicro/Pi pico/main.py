@@ -6,12 +6,21 @@ import utime
 from EMA_Libreria import EMA
 from mpu9250 import MPU9250
 from ulora import LoRa, ModemConfig, SPIConfig
+from machine import WDT
+
+fido = WDT(timeout=10000)  # enable it with a timeout of 2s
+fido.feed()
+
+
 trama = [0] * 10
 EMA = EMA()
 counter =0
 ress=0
 pluvi=0
 cadenaA="@00$00#"
+
+
+led = Pin(25,Pin.OUT)
 i2c0 = SoftI2C(scl=Pin(15), sda=Pin(14), freq=400000, timeout=5000)
 i2c1 = SoftI2C(scl=Pin(27), sda=Pin(26), freq=400000, timeout=5000)
 i2c2 = SoftI2C(scl=Pin(21), sda=Pin(20), freq=400000, timeout=5000)
@@ -155,9 +164,11 @@ while True:
     try:
         
         if counter ==len(cadenaA):
+            fido.feed()
             counter =0
             ress=ress+1
-        if ress==20:
+            led.value(not led.value())
+        if ress==2000:
             flag=False
         if s_i2c.any():
             pass
@@ -165,7 +176,7 @@ while True:
         if s_i2c.anyRead():
             #print(counter)
             s_i2c.put(cadenaA[counter] & 0xff)
-            counter = counter + 1
+            counter = counter + 1 
     except:
         pass
         

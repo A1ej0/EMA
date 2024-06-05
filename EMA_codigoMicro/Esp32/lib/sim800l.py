@@ -38,7 +38,7 @@ class SIM():
         self.uart = UART(2, 115200, timeout=2000, rx=16, tx=17)
         self.temporal=""
         self.contador=0
-        self.intentos=10
+        self.intentos=3
         
         
         logf = open("/ajustes.txt","r")
@@ -148,7 +148,7 @@ class SIM():
         
         
     def envioDatosSim(self,temp):
-        
+        """
         self.publish("Acelxv35G",str(temp[0]))
         time.sleep(0.5) 
         self.publish("Acelyv35G",str(temp[1]))
@@ -162,10 +162,11 @@ class SIM():
         self.publish("Magzv35G",str(temp[5]))
         time.sleep(0.5) 
         self.publish("Tempv35G",str(temp[6]))
-        time.sleep(0.5) 
+        time.sleep(0.5)
+        """
         self.publish("Pluvv35G",str(temp[7]))
-        time.sleep(0.5) 
-        self.publish("Distv35G",str(temp[8]))
+        #time.sleep(0.5) 
+        #self.publish("Distv35G",str(temp[8]))
         time.sleep(0.5) 
         self.publish("LoRav35G",str(temp[9]))
         
@@ -249,4 +250,5 @@ class SIM():
 
 #sim.connectS()
         
+
 

@@ -5,10 +5,12 @@ import network,time,os,machine,ds1307,bluetooth,random
 from simple import MQTTClient
 from mpu9250 import MPU9250
 from BLE import BLEUART
+import sh1106
+from ulora import LoRa, ModemConfig, SPIConfig
 
 
 #Variables usadas
-nombreBluetooth="EMAV3"
+nombreBluetooth="EMALoRa1"
 p=0
 q=1
 config_flag=False
@@ -16,7 +18,7 @@ config_flag=False
 #Datos de servidor
 wifi = "EMA"
 claveWifi="SGCEMA"
-host="139.177.103.44"
+host="138.128.244.81"
 server=host
 puerto="1883"
 user="EMA"
@@ -35,6 +37,9 @@ limite=0
 lectura=0
 k_value=0.48
 contador=0
+calidad="0"
+auxLoRa=True
+
 
 #APN GPRS
 apn="internet.comcel.com.co"
@@ -44,6 +49,13 @@ temporal=""
 ble=bluetooth.BLE()
 buart=BLEUART(ble,nombreBluetooth)
 
+#Interrupcion LoRa
+def on_recv(payload):
+    global calidad,auxLoRa
+    calidad=str(payload.message.decode())
+    auxLoRa=False
+    
+    
 #Interrupcion recepcion Bluetooth
 def on_RX():
     global wifi,claveWifi,server,puerto,user,claveMqtt,telefono,p,config_flag, AlertFlag, limite,IPport,q,k_value,Tel0,Tel1,Tel2,Tel3
@@ -159,10 +171,22 @@ def on_Disconect():
     config_flag=False
     
 
-# register IRQ handler
+# Bluetooth
 buart.irq(handler=on_RX)
 buart.discnthandler(handler=on_Disconect)
 
+#LoRa
+RFM95_RST = 2
+RFM95_SPIBUS = SPIConfig.esp32_1
+RFM95_CS = 15
+RFM95_INT = 4
+RF95_FREQ = 915.0
+RF95_POW = 20
+CLIENT_ADDRESS = 1
+SERVER_ADDRESS = 2
+lora = LoRa(RFM95_SPIBUS, RFM95_INT, SERVER_ADDRESS, RFM95_CS, reset_pin=RFM95_RST, freq=RF95_FREQ, tx_power=RF95_POW, acks=True)
+lora.on_recv = on_recv
+lora.set_mode_rx()
 
 #LIBRERIA PRINCIPAL EMA
 class EMA():
@@ -172,36 +196,32 @@ class EMA():
         self.led1 = Pin(25, Pin.OUT, machine.Pin.PULL_DOWN)
         self.led2 = Pin(26, Pin.OUT, machine.Pin.PULL_DOWN)
         self.led3 = Pin(27, Pin.OUT, machine.Pin.PULL_DOWN)
+        self.led4 = Pin(33, Pin.OUT, machine.Pin.PULL_DOWN)
+        #Compartido OLED
+        #self.led5 = Pin(32, Pin.OUT, machine.Pin.PULL_DOWN)
         self.t=0
         #i2c_init
         self.bus = I2C(1, scl=Pin(22), sda=Pin(21), freq=100000)
         #UART init
         self.uart = UART(2, 115200, timeout=2000, rx=16, tx=17)
+        #Oled init (1.3)
+        try:
+            self.oled = sh1106.SH1106_I2C(128, 64, self.bus, Pin(32), 0x3c)
+            self.oled.sleep(False)
+            self.oled.invert(False)
+            self.oled.flip(True)
+        except:
+            pass
         #RTC_init
         self.ds = ds1307.DS1307(self.bus)
         self.ds.halt(False)
-        #HALL_init
-        self.hall = ADC(Pin(34))
-        self.hall.atten(ADC.ATTN_11DB)
         #SD_init
         try:
             self.sd = machine.SDCard(slot=2, freq=1320000)
         except:
             machine.reset()
-        
-        #variables_init
-        self.dispositivos = [0,0,0,0,0,0]
-        self.errores=[1,1,1,1]
-        self.errores_criticos=[0,0,0]
-        self.lecturas=[0.0,0.0,0.0,0.0,0.0,0.0]
-        
-        #Sensor_list
-        self.sensores = {
-        12:"Magnetometro",
-        104:"Acelerometro",
-        119:"Temperatura"
-        }
-    #Funcion para errores "criticos"
+
+    #Funcion para publicar GPRS
     def publish(self,topic,data):
         global temporal
         line=None
@@ -211,21 +231,23 @@ class EMA():
         message=bytearray(b'\x30')+bytearray(len(message).to_bytes(1, 'big'))+message+bytearray(b'\x1A')
         self.uart.write(message)
         line=str(self.uart.read(100))
-        #print(line)
+        print(line)
         time.sleep(0.2)
         line=line+str(self.uart.read(100))
-        #print(line)
+        print(line)
         temporal=temporal+str(line)
+        
     #Funcion desconectar GPRS    
     def disconnect(self):
         self.send_command('AT+CIPSEND')
         time.sleep(0.2)
         message=b"\xe0\0\x1a"        
         self.uart.write(message)
-        #print(self.uart.read(100))
+        print(self.uart.read(100))
         time.sleep(1)
         self.send_command("AT+CIPSHUT")
         time.sleep(0.2)
+        
     #Funcion enviar GPRS
     def send_command(self,command):
         line=None
@@ -239,13 +261,13 @@ class EMA():
         if line:
             try:
                 line = line.decode('utf-8')
-                #print(line.replace('\r\n','\n'))
+                print(line.replace('\r\n','\n'))
             except:
                 pass
-                #print(str(line))
+                print(str(line))
         else:
             pass
-            #print('Hmmm...')
+            print('Hmmm...')
     #Fucion conectar SIM        
     def connectSIM(self):
         global apn,host,puerto
@@ -253,21 +275,21 @@ class EMA():
         self.host=host
         self.port=puerto
         self.send_command("AT")
-        time.sleep(3)
+        time.sleep(2)
         self.send_command('AT+CPIN?')
-        time.sleep(3)
+        time.sleep(2)
         self.send_command("AT+CIPSHUT")
-        time.sleep(3)
+        time.sleep(2)
         self.send_command('AT+CSTT="'+self.apn+'"')
-        time.sleep(3)
+        time.sleep(2)
         self.send_command('AT+CIICR')
-        time.sleep(3)
+        time.sleep(2)
         self.send_command('AT+CIFSR')
-        time.sleep(3)
+        time.sleep(2)
         self.send_command('AT+CIPSPRT=0')
-        time.sleep(3)
+        time.sleep(2)
         self.send_command('AT+CIPSTART="TCP","'+self.host+'","'+str(self.port)+'"')
-        time.sleep(15)
+        time.sleep(10)
     #Fucion conectar GPRS   
     def connectS(self):
         global user,claveMqtt
@@ -279,7 +301,7 @@ class EMA():
         self.password=claveMqtt
         line=None
         self.connectSIM()
-        #print("conectado a GPRS")
+        print("conectado a GPRS")
         self.uart.write('AT+CIPSEND\r\n')
         message=bytearray(b'\x00\x04')+bytearray(bytes("MQTT","ascii"))+bytearray(b'\x04\xc2')
         message=message+bytearray(b'\x00\x3C')
@@ -289,8 +311,8 @@ class EMA():
         message=bytearray(b'\x10')+bytearray(len(message).to_bytes(1, 'big'))+message+bytearray(b'\x1A')
         time.sleep(0.2)
         self.uart.write(message)
-        #print("intentando conectar a MQTT...")
-        time.sleep(5)
+        print("intentando conectar a MQTT...")
+        time.sleep(4)
 
     #Calibracion temperatura
     def calibracionTemp(self):
@@ -344,7 +366,7 @@ class EMA():
     def Pluviometro(self):
         global UmbralPluv
         try:
-            Pluv=self.bus.readfrom(88, 2).decode().strip("\x00")
+            Pluv=int(self.bus.readfrom(42, 2).decode().strip("\x00"))
         except:
             Pluv=-1         
             
@@ -509,29 +531,45 @@ class EMA():
         except:
             #print("error de envio")
             self.t=0
+    #OLED
+    def escribirOLED(self,mensaje1,mensaje2):
+        global calidad
+        
+        self.oled.fill(0)
+        self.oled.text('Hora Recepcion', 0, 10)
+        self.oled.text(str(mensaje1), 0, 20)
+        self.oled.text('Lluvia', 0, 30)
+        self.oled.text(str(mensaje2), 0, 40)
+        self.oled.text('mm', 0, 50)
+        self.oled.show()
+        
+    def CalidadLoRa(self):
+        global auxLoRa,calidad
+        if auxLoRa == False:
+            auxLoRa=True
+            return calidad
+        else:
+            return -1
+        
     
     def envioDatosSim(self,temp):
         global contador,temporal
-        i=temp[9]
-        self.publish("tempo",str(i))
+        self.publish("lluvia5G",str(temp[4]))
         time.sleep(0.5)
-        self.publish("calidad3G",str(temp[9]))
+        self.publish("distancia5G",str(temp[10]))
         time.sleep(0.5)
-        self.publish("fecha3G",str(temp[7]))
-        time.sleep(0.5)
-        self.publish("hora3G",str(temp[8]))
         
-        #print("contador en: ", str(contador))
+        print("contador en: ", str(contador))
         if contador < 10:
             contador=contador+1
         else:
             if "OK" in temporal and not "CLOSED" in temporal:
-                #print("enviando correctamente")
+                print("enviando correctamente")
                 temporal=""
                 contador=0
                 return True
             else:
-                #print("error de envio... Reiniciando")
+                print("error de envio... Reiniciando")
                 self.disconnect()
                 self.connectS()
                 contador=0

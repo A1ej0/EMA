@@ -29,14 +29,15 @@ auxFecha=0
 
 #Envio de datos mediante wifi
 def envioWifiBt():
+    global datos,hora
     print('envio wifi/BT iniciado')
     while True:
-        EMA.envioDatos(datos)
-        EMA.envioBt (datos)
+        EMA.envioDatos(datos,hora)
+        #EMA.envioBt (datos)
         time.sleep(1)
 #Envio de datos mediante GRPS y alerta SMS
 def envioGRPS():
-    global frecuencia,contadorSIM
+    global frecuencia,contadorSIM,datos
     print('envio gprs iniciado')
     EMA.desconectarSIM()
     time.sleep(3)
@@ -56,8 +57,8 @@ while True:
     fechaHora = EMA.rtc()
     hora=str(fechaHora[4])+":"+str(fechaHora[5])+":"+str(fechaHora[6])
     fecha=str(fechaHora[2])+"/"+str(fechaHora[1])+"/"+str(fechaHora[0])[2:]
-    date=fecha+"-"+hora
-        #EMA.escribirOLED(date,lluvias)
+    date=hora
+    #EMA.escribirOLED(date,datos)
     #Organizacion de datos capturados en una lista
     #datos= [temp,acel[0],acel[1],acel[2],lluvias,lecturaGPS2[0],lecturaGPS2[1],fecha,hora,calidad,distanci]
     
@@ -66,10 +67,13 @@ while True:
         sensores=sensores[1:-1]
         sensores=sensores.split("$")
         for i in range(len(sensores)):
-            datos[i]=sensores[i]
+            if float(sensores[i])>0:
+                datos[i]=sensores[i]
         print(sensores)
     except:
+        print('error sensores')
         pass
+    
     
     #Captura de lluvias
     
