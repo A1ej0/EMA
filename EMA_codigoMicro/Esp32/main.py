@@ -25,29 +25,41 @@ count2=0
 calidad=0
 tempoFecha=0
 auxFecha=0
+auxsms=0
+sensores=0
+fechaHora=0
 
 
 #Envio de datos mediante wifi
 def envioWifiBt():
-    global datos,hora
-    print('envio wifi/BT iniciado')
+    global datos,hora,EMA
+    #print('envio wifi/BT iniciado')
     while True:
         EMA.envioDatos(datos,hora)
         #EMA.envioBt (datos)
         time.sleep(1)
 #Envio de datos mediante GRPS y alerta SMS
 def envioGRPS():
-    global frecuencia,contadorSIM,datos
-    print('envio gprs iniciado')
+    global frecuencia,contadorSIM,datos,auxsms,EMA
+    #print('envio gprs iniciado')
     EMA.desconectarSIM()
     time.sleep(3)
     EMA.conectarSIM()
     
     while True:
-        if not frecuencia:
-            #EMA.AlertSms(lluvias,distanci,True)
-            EMA.envioDatosSim(datos)     
-        time.sleep(1)
+        if auxsms==0:
+            if not frecuencia:
+                #EMA.AlertSms(lluvias,distanci,True)
+                EMA.envioDatosSim(datos)     
+            time.sleep(1)
+        else:
+            EMA.desconectarSIM()
+            EMA.envioDatosSMS(datos,fecha,hora)
+            EMA.conectarSIM()
+            auxsms=0
+            time.sleep(1)
+            
+            
              
 _thread.start_new_thread(envioWifiBt,())
 _thread.start_new_thread(envioGRPS,())
@@ -63,28 +75,37 @@ while True:
     #datos= [temp,acel[0],acel[1],acel[2],lluvias,lecturaGPS2[0],lecturaGPS2[1],fecha,hora,calidad,distanci]
     
     try:
-        sensores= EMA.sensores()
+        sensores=EMA.sensores()
         sensores=sensores[1:-1]
         sensores=sensores.split("$")
-        for i in range(len(sensores)):
-            if float(sensores[i])>0:
+        
+        for i in range(len(sensores)-1):
+            if float(sensores[i])!=0:
                 datos[i]=sensores[i]
-        print(sensores)
+        if sensores[-1][0]=="D":
+            datos[8]=sensores[-1][1:]
+        elif sensores[-1][0]=="P":
+            datos[7]=sensores[-1][1:]
+        elif sensores[-1][0]=="Q":
+            datos[9]=sensores[-1][1:]
+        
+        #print(sensores)
     except:
-        print('error sensores')
+#         print('error sensores')
         pass
     
     
     #Captura de lluvias
     
     if count>=3:
-        lluvia==0.149
+        #lluvia=0.149
         if tempoFecha==0:
-            auxFecha=fechaHora[2]
+            auxFecha=fechaHora[4]
             tempoFecha=1
         else:
-            if fechaHora[2] != 0:
-                if auxFecha != fechaHora[2]:
+            if fechaHora[4] != 0:
+                if auxFecha != fechaHora[4]:
+                    auxsms=1
                     tempoFecha=0
                 else:
                     pass
@@ -94,11 +115,12 @@ while True:
             else:
                 textoRaw=str(datos[i])
         
+        #EMA.envioDatosSMS(datos,fecha,hora)
         #Guardar datos en SD
         EMA.escribirSD(textoRaw)
         time.sleep(1)
-        print("SD sobreescrita")
+        #print("SD sobreescrita")
         textoRaw=""
         count=0
     count=count+1
-    time.sleep(1)
+    time.sleep(5)

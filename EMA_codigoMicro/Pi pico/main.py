@@ -8,7 +8,7 @@ from mpu9250 import MPU9250
 from ulora import LoRa, ModemConfig, SPIConfig
 from machine import WDT
 
-fido = WDT(timeout=10000)  # enable it with a timeout of 2s
+fido = WDT(timeout=8000)  # enable it with a timeout of 2s
 fido.feed()
 
 
@@ -125,9 +125,10 @@ def main():
                         try:
                             temp=int(EMA.Pluviometro(canal))
                             pluvi=pluvi+temp
-                            serie.write("i2c:  "+str(temp)+"   pluvi:  "+str(pluvi)+"\n")
+                            #serie.write("i2c:  "+str(temp)+"   pluvi:  "+str(pluvi)+"\n")
                         except:
-                            serie.write("Error lectura pluviometro \n")
+                            pass
+                            #serie.write("Error lectura pluviometro \n")
                         #print(pluviometro)
                         #serie.write(str(pluviometro)+"\n")
                         trama[7] = pluvi
@@ -157,26 +158,31 @@ while True:
             # set to listen continuously
             lora.set_mode_rx()
             flag=True
+            serie.write("Reset LoRa\n")
+        pass
     except:
-        print('error LoRa')
+        #print('error LoRa')
+        serie.write("Error LoRa\n")
         pass
     
     try:
         
-        if counter ==len(cadenaA):
+        if counter >=len(cadenaA):
             fido.feed()
-            counter =0
+            counter = 0
             ress=ress+1
             led.value(not led.value())
-        if ress==2000:
+        if ress>=2000:
             flag=False
-        if s_i2c.any():
-            pass
+            serie.write("Bandera LoRa\n")
+        #if s_i2c.any():
+            #pass
             #print(s_i2c.get())
         if s_i2c.anyRead():
             #print(counter)
             s_i2c.put(cadenaA[counter] & 0xff)
-            counter = counter + 1 
+            counter = counter + 1
+        pass
     except:
         pass
         

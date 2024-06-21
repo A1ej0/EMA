@@ -63,7 +63,21 @@ class SIM():
 
         claveMqtt=lectura[6].strip("\n")
         claveMqtt=claveMqtt.split(":")
-        self.password=claveMqtt[1] 
+        self.password=claveMqtt[1]
+
+        Telefono1=lectura[19].strip("\n")
+        Telefono1=Telefono1.split(":")
+        self.Telefono1=Telefono1[1]
+        
+        Telefono2=lectura[20].strip("\n")
+        Telefono2=Telefono2.split(":")
+        self.Telefono2=Telefono2[1]
+        
+        Telefono3=lectura[21].strip("\n")
+        Telefono3=Telefono3.split(":")
+        self.Telefono3=Telefono3[1]
+        
+        self.telefonos=[self.Telefono1,self.Telefono2,self.Telefono3]
         
 
     def connectS(self):
@@ -72,7 +86,7 @@ class SIM():
         self.clientID=self.user + str(ra)
         line=None
         self.connectSIM()
-        print("conectado a GPRS")
+        #print("conectado a GPRS")
         self.uart.write('AT+CIPSEND\r\n')
         message=bytearray(b'\x00\x04')+bytearray(bytes("MQTT","ascii"))+bytearray(b'\x04\xc2')
         message=message+bytearray(b'\x00\x3C')
@@ -82,7 +96,7 @@ class SIM():
         message=bytearray(b'\x10')+bytearray(len(message).to_bytes(1, 'big'))+message+bytearray(b'\x1A')
         time.sleep(0.2)
         self.uart.write(message)
-        print("intentando conectar a MQTT...")
+        #print("intentando conectar a MQTT...")
         time.sleep(4)
         
     #Fucion conectar SIM        
@@ -118,13 +132,13 @@ class SIM():
         if line:
             try:
                 line = line.decode('utf-8')
-                print(line.replace('\r\n','\n'))
+                #print(line.replace('\r\n','\n'))
             except:
                 pass
-                print(str(line))
+                #print(str(line))
         else:
             pass
-            print('Hmmm...')
+            #print('Hmmm...')
         
         
 
@@ -139,16 +153,16 @@ class SIM():
         message=bytearray(b'\x30')+bytearray(len(message).to_bytes(1, 'big'))+message+bytearray(b'\x1A')
         self.uart.write(message)
         line=str(self.uart.read(100))
-        print(line)
+        #print(line)
         time.sleep(0.2)
         line=line+str(self.uart.read(100))
-        print(line)
+        #print(line)
         self.temporal=self.temporal+str(line)
         
         
         
     def envioDatosSim(self,temp):
-        """
+        
         self.publish("Acelxv35G",str(temp[0]))
         time.sleep(0.5) 
         self.publish("Acelyv35G",str(temp[1]))
@@ -163,24 +177,23 @@ class SIM():
         time.sleep(0.5) 
         self.publish("Tempv35G",str(temp[6]))
         time.sleep(0.5)
-        """
         self.publish("Pluvv35G",str(temp[7]))
-        #time.sleep(0.5) 
-        #self.publish("Distv35G",str(temp[8]))
+        time.sleep(0.5) 
+        self.publish("Distv35G",str(temp[8]))
         time.sleep(0.5) 
         self.publish("LoRav35G",str(temp[9]))
         
-        print("contador en: ", str(self.contador))
+        #print("contador en: ", str(self.contador))
         if self.contador < self.intentos:
             self.contador=self.contador+1
         else:
             if "OK" in self.temporal and not "CLOSED" in self.temporal:
-                print("enviando correctamente")
+                #print("enviando correctamente")
                 self.temporal=""
                 self.contador=0
                 return True
             else:
-                print("error de envio... Reiniciando")
+                #print("error de envio... Reiniciando")
                 self.disconnect()
                 self.connectS()
                 self.contador=0
@@ -194,7 +207,7 @@ class SIM():
         time.sleep(0.2)
         message=b"\xe0\0\x1a"        
         self.uart.write(message)
-        print(self.uart.read(100))
+        #print(self.uart.read(100))
         time.sleep(1)
         self.send_command("AT+CIPSHUT")
         time.sleep(0.2)
@@ -203,10 +216,9 @@ class SIM():
         
     #Alerta mediante SMS
     def AlertSms(self,dato):
-        global telefono, mensajeAlerta
-        tele2=3123776985
         
-        mensajeAlerta="Conductividad electrica: "+str(dato)+"uS"
+        mensajeAlerta=dato
+        
         line=str(self.uart.read(100))
         time.sleep(0.5)
         line=str(self.uart.read(100))
@@ -216,27 +228,20 @@ class SIM():
         line=str(self.uart.read(100))
         phone = self.uart
         time.sleep(0.5)
-        phone.write(b'AT\r')
-        time.sleep(0.5)
-        phone.write(b'AT+CMGF=1\r')
-        time.sleep(0.5)
-        phone.write(b'AT+CMGS="' + str(telefono).encode() + b'"\r')
-        time.sleep(0.5)
-        phone.write(mensajeAlerta.encode() + b"\r")
-        time.sleep(0.5)
-        phone.write(bytes([26]))
-        time.sleep(2)
-        phone.write(b'AT\r')
-        time.sleep(0.5)
-        phone.write(b'AT+CMGF=1\r')
-        time.sleep(0.5)
-        phone.write(b'AT+CMGS="' + str(tele2).encode() + b'"\r')
-        time.sleep(0.5)
-        phone.write(mensajeAlerta.encode() + b"\r")
-        time.sleep(0.5)
-        phone.write(bytes([26]))
-        time.sleep(0.5)
-        #print("\n\n mensaje enviado \n\n")
+        
+        for i in range(len(self.telefonos)):
+            phone.write(b'AT\r')
+            time.sleep(0.5)
+            phone.write(b'AT+CMGF=1\r')
+            time.sleep(0.5)
+            phone.write(b'AT+CMGS="' + str(self.telefonos[i]).encode() + b'"\r')
+            #print("enviando mensaje a: "+str(self.telefonos[i]))
+            time.sleep(0.5)
+            phone.write(mensajeAlerta.encode() + b"\r")
+            time.sleep(0.5)
+            phone.write(bytes([26]))
+            time.sleep(4)
+            
         line=str(self.uart.read(100))
         time.sleep(0.5)
         line=str(self.uart.read(100))
@@ -244,6 +249,7 @@ class SIM():
         line=str(self.uart.read(100))
         time.sleep(5)
         line=str(self.uart.read(100))
+        #print("SMS enviados")
         
 
 #sim=SIM()

@@ -17,7 +17,7 @@ ajuste.close()
 
 #Variables de ajustes
 nombreBluetooth=ajustes[15].strip("\n").split(":")[1]
-print(nombreBluetooth)
+#print(nombreBluetooth)
 wifi=ajustes[10].strip("\n").split(":")[1]
 claveWifi=ajustes[11].strip("\n").split(":")[1]
 host=ajustes[3].strip("\n").split(":")[1]
@@ -28,10 +28,15 @@ claveMqtt=ajustes[6].strip("\n").split(":")[1]
 IPort=""
 apn=ajustes[2].strip("\n").split(":")[1]
 
+
+
 miRed = network.WLAN(network.STA_IF)
 miRed.active(True)
+miRed.config(dhcp_hostname="EMAV3")
 miRed.config(reconnects=-1)
+miRed.config(txpower=9)
 miRed.connect(wifi, claveWifi)
+#miRed.config(pm=miRed.PM_NONE)
 wifiFlag=0
 
 
@@ -210,6 +215,9 @@ class EMA():
     
     def __init__(self):
         
+        self.temp=0
+        self.inicial=0
+        self.final=0
         self.sim=SIM()
         #Leds indicadores
         self.led5 = Pin(25, Pin.OUT, Pin.PULL_DOWN)
@@ -289,7 +297,7 @@ class EMA():
             logf.write(str(temp)+"\r\n")
             logf.close()
         except:
-            #print("error SD")
+            ##print("error SD")
             os.mount(self.sd, "/sd")
     #Envio de datos mediante Bluetooth
     def envioBt(self,temp):
@@ -299,7 +307,7 @@ class EMA():
                 self.led5.value(not self.led5.value())
                 buart.write("EMA dice: "+str(temp)+"\n")
         except:
-            #print("error de envio")
+            ##print("error de envio")
             self.t=0
     #Ajustes de envio de datos, wifi y MQTT
     def envioDatos (self,temp,hora):
@@ -307,10 +315,9 @@ class EMA():
         self.temp = temp
         varTemp=miRed.status()
         varFlag=0
-        print(varTemp)
+        #print(varTemp)
         if varTemp==1001:
             try:
-                print('wifi desconectado')
                 self.oled.fill_rect(1,45,12,9,0)
                 self.oled.blit(fbufwifion,1,45)
                 self.oled.show()
@@ -322,7 +329,6 @@ class EMA():
         elif varTemp==1010:
             varFlag=1
             wifiFlag=0
-            print('wifi conectado')
             self.led1.off()
             self.led2.on()
             try:
@@ -335,6 +341,7 @@ class EMA():
             wifiFlag=wifiFlag+1
             if wifiFlag==10:
                 try:
+                    #print('-------------- Reiniciando wifi ---------------')
                     miRed.disconnect()
                     miRed.active(False)
                     time.sleep(1)
@@ -351,7 +358,7 @@ class EMA():
             self.oled.hline(63,30,50,1)
             self.oled.text("Hora:",65,10)
             self.oled.text(hora,65,20)
-            self.oled.text('LoRa:',65,40)
+            self.oled.text('Quality:',65,40)
             self.oled.text(str(self.temp[9]),65,50)
             self.oled.show()
         except:
@@ -361,7 +368,7 @@ class EMA():
         if varFlag==1:
             if self.t==0:
                 try: 
-                    print("Conectando MQTT...")
+                    #print("Conectando MQTT...")
                     self.cliente = MQTTClient(client_id="rueb",server=str(server),port=int(puerto),user=str(user),password=str(claveMqtt),keepalive=60)
                     time.sleep(2)
                     self.cliente.connect()
@@ -371,7 +378,7 @@ class EMA():
                         self.cliente.disconnect()
                     except:
                         pass
-                    print("error de conexion MQTT...")
+                    #print("error de conexion MQTT...")
             elif self.t==1:
                 try:
                     self.cliente.publish("Acelxv3",str(temp[0]))
@@ -384,9 +391,9 @@ class EMA():
                     self.cliente.publish("Pluvv3",str(temp[7]))
                     self.cliente.publish("Distv3",str(temp[8]))
                     self.cliente.publish("LoRav3",str(temp[9]))
-                    print("Envio exitoso!")
+                    #print("Envio exitoso!")
                 except:
-                    print("error de envio mediante wifi")
+                    #print("error de envio mediante wifi")
                     self.t=0
                     try:
                         self.cliente.disconnect()
@@ -435,13 +442,12 @@ class EMA():
                 self.oled.show()
             except:
                 pass
-            
-        
-        
-        
     
-        
-        
+    def envioDatosSMS(self,datos,fecha,hora):
+        #mensaje="EMA v3 RP:\n"+fecha+" - "+hora+"\n"+"Acx="+str(datos[0])+"\n"+"Acy="+str(datos[1])+"\n"+"Acz="+str(datos[2])+"\n"+"Tmp="+str(datos[6])+"\n"+"Plu="+str(datos[7])+"\n"+"Dis="+str(datos[8])+"\n"+"Qow="+str(datos[9])
+        mensaje="Este es un mensaje de prueba... : "+"Dis = "+str(datos[8])+" Qow= "+str(datos[9])
+        self.sim.AlertSms(mensaje)
+            
     def conectarSIM(self):
         #pass
         self.sim.connectS()
@@ -453,15 +459,12 @@ class EMA():
               
             
     def sensores(self):
-        aux=0
-        value=""
-        temp=self.bus.readfrom(65, 100).decode()
-        inicial=temp.find("@")
-        temp=temp[inicial:]
-        final=temp.find("#")+1     
-        temp=temp[:final]
-        return temp
-    
-    
-
-
+        try:
+            self.temp=self.bus.readfrom(65, 100).decode()
+            self.inicial=self.temp.find("@")
+            self.temp=self.temp[self.inicial:]
+            self.final=self.temp.find("#")+1     
+            self.temp=self.temp[:self.final]
+        except:
+            pass
+        return self.temp
