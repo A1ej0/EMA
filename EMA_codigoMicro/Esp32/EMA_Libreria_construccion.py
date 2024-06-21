@@ -337,6 +337,9 @@ class EMA():
                 self.oled.show()
             except:
                 pass
+        else:
+            pass
+        """
         elif varTemp==201:
             wifiFlag=wifiFlag+1
             if wifiFlag==10:
@@ -351,6 +354,7 @@ class EMA():
                 except:
                     pass
                 wifiFlag=0
+        """
                 
         try:
             self.oled.fill_rect(64,0,64,64,0)
