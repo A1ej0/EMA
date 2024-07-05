@@ -45,6 +45,7 @@ def on_recv(payload):
     except:
         pass
     #sleep(1)
+    lora.close()
     flag=False
 
 # Lora Parameters
@@ -173,6 +174,7 @@ while True:
             ress=ress+1
             led.value(not led.value())
         if ress>=2000:
+            lora.close()
             flag=False
             serie.write("Bandera LoRa\n")
         #if s_i2c.any():
