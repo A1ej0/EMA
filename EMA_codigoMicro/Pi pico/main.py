@@ -37,16 +37,16 @@ def on_recv(payload):
 #    print("From:", payload.header_from)
     try:
         LoRaM=payload.message
-        serie.write(str(LoRaM))
+        #serie.write(str(LoRaM))
         #print("Received:", LoRaM)
         trama[-1]=LoRaM.decode()
     #    print("RSSI: {}; SNR: {}".format(payload.rssi, payload.snr))
-        lora.close()
+        #lora.close()
     except:
         pass
     #sleep(1)
-    lora.close()
-    flag=False
+    #lora.close()
+    #flag=False
 
 # Lora Parameters
 RFM95_RST = 9
@@ -57,6 +57,11 @@ RF95_FREQ = 433.0
 RF95_POW = 20
 CLIENT_ADDRESS = 1
 SERVER_ADDRESS = 2
+
+
+lora = LoRa(RFM95_SPIBUS, RFM95_INT, SERVER_ADDRESS, RFM95_CS, reset_pin=RFM95_RST, freq=RF95_FREQ, tx_power=RF95_POW, acks=False)
+lora.on_recv = on_recv
+lora.set_mode_rx()
 
 # initialise radio
 def idSensor(direccion):
@@ -151,32 +156,34 @@ _thread.start_new_thread(main,())
 while True:
 #---------------------------------------------------------------------------------------------------------------------------------------
    #LoRa#
+    """
     try:
         if flag==False:
-            lora = LoRa(RFM95_SPIBUS, RFM95_INT, SERVER_ADDRESS, RFM95_CS, reset_pin=RFM95_RST, freq=RF95_FREQ, tx_power=RF95_POW, acks=True)
+            lora = LoRa(RFM95_SPIBUS, RFM95_INT, SERVER_ADDRESS, RFM95_CS, reset_pin=RFM95_RST, freq=RF95_FREQ, tx_power=RF95_POW, acks=False)
             # set callback
             lora.on_recv = on_recv
             # set to listen continuously
             lora.set_mode_rx()
             flag=True
-            serie.write("Reset LoRa\n")
+            #serie.write("Reset LoRa\n")
         pass
     except:
         #print('error LoRa')
-        serie.write("Error LoRa\n")
+        #serie.write("Error LoRa\n")
         pass
+    """
     
     try:
         
         if counter >=len(cadenaA):
             fido.feed()
             counter = 0
-            ress=ress+1
+            #ress=ress+1
             led.value(not led.value())
-        if ress>=2000:
-            lora.close()
-            flag=False
-            serie.write("Bandera LoRa\n")
+        #if ress>=2000:
+            #lora.close()
+            #flag=False
+            #serie.write("Bandera LoRa\n")
         #if s_i2c.any():
             #pass
             #print(s_i2c.get())

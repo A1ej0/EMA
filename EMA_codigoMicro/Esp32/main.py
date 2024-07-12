@@ -53,11 +53,15 @@ def envioGRPS():
                 EMA.envioDatosSim(datos)     
             time.sleep(1)
         else:
+            auxsms=0
+            pass
+            """
             EMA.desconectarSIM()
             EMA.envioDatosSMS(datos,fecha,hora)
             EMA.conectarSIM()
             auxsms=0
             time.sleep(1)
+            """
             
             
              
@@ -88,6 +92,8 @@ while True:
             datos[7]=sensores[-1][1:]
         elif sensores[-1][0]=="Q":
             datos[9]=sensores[-1][1:]
+        else:
+            pass
         
         #print(sensores)
     except:
