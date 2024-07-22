@@ -1,12 +1,11 @@
 #Librerias y dependencias
-from ustruct import unpack as unp
-from machine import I2C, Pin, SPI, UART, ADC
-import network,time,os,machine,ds1307,bluetooth,random,sh1106
+from machine import I2C, Pin
+import network,time,os,machine,ds1307,bluetooth,sh1106
 from simple import MQTTClient
 from BLE import BLEUART
 from sim800l import SIM
 import framebuf
-import _thread
+from random import randint
 
 #Apertura de archivo de ajustes
 ajuste = open("ajustes.txt","r")
@@ -27,12 +26,13 @@ user=ajustes[5].strip("\n").split(":")[1]
 claveMqtt=ajustes[6].strip("\n").split(":")[1]
 IPort=""
 apn=ajustes[2].strip("\n").split(":")[1]
+version=ajustes[23].strip("\n").split(":")[1]
 
 
 
 miRed = network.WLAN(network.STA_IF)
 miRed.active(True)
-miRed.config(dhcp_hostname="EMAV3")
+miRed.config(dhcp_hostname="EMAV"+version)
 miRed.config(reconnects=-1)
 miRed.config(txpower=9)
 try:
@@ -247,7 +247,7 @@ class EMA():
             self.oled.fill(0)
             
             
-            self.oled.text('EMA v3', 0, 5)
+            self.oled.text('EMA v'+version, 0, 5)
             self.oled.text('LoRa', 20, 30)
             self.oled.blit(fbuf,64,1)
             self.oled.text('SGC', 70, 48)
@@ -345,7 +345,7 @@ class EMA():
                 self.oled.show()
             except:
                 pass
-        
+        """
         elif varTemp==201:
             try:
                 self.oled.fill_rect(1,45,12,9,0)
@@ -385,10 +385,7 @@ class EMA():
                 wifiFlag=0
         else:
             pass
-        
-        
-        
-                
+        """
         try:
             self.oled.fill_rect(64,0,64,64,0)
             self.oled.vline(63,10,45,1)

@@ -64,7 +64,6 @@ def envioGRPS():
             """
             
             
-             
 _thread.start_new_thread(envioWifiBt,())
 _thread.start_new_thread(envioGRPS,())
 
@@ -89,7 +88,7 @@ while True:
         if sensores[-1][0]=="D":
             datos[8]=sensores[-1][1:]
         elif sensores[-1][0]=="P":
-            datos[7]=sensores[-1][1:]
+            datos[7]=str(float(sensores[-1][1:])*0.149)
         elif sensores[-1][0]=="Q":
             datos[9]=sensores[-1][1:]
         else:
