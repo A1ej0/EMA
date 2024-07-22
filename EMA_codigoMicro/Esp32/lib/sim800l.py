@@ -128,7 +128,7 @@ class SIM():
         self.uart.write(command)
         while line==None and line2==None:
             line = self.uart.read(100)
-            
+        """    
         if line:
             try:
                 line = line.decode('utf-8')
@@ -139,6 +139,7 @@ class SIM():
         else:
             pass
             #print('Hmmm...')
+        """
         
         
 

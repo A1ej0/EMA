@@ -1,7 +1,7 @@
 #Calidad de agua y temperatura en uS/cm
 
 #Librerias
-from machine import Pin, reset
+from machine import Pin, reset, UART
 from time import sleep
 from ulora import LoRa, ModemConfig, SPIConfig
 from machine import WDT
@@ -64,14 +64,14 @@ def read_distance():
 
 while True:
     try:
-        Temp=read_distance()
+        Temp=float(read_distance())/10.0
         firulais.feed()
     except:
         pass
-    lora.send(str(Temp), SERVER_ADDRESS)
+    print(Temp)
+    lora.send("D"+str(Temp), SERVER_ADDRESS)
     firulais.feed()
     print("comiendo...")
     #print("TDS: {}ppm, EC: {} mS/cm".format(tds_value, tds_value*2))
     sleep(5)
     Res.on()
-
