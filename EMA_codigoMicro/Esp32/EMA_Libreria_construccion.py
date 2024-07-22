@@ -1,3 +1,5 @@
+##############################################
+
 #Librerias y dependencias
 from machine import I2C, Pin
 import network,time,os,machine,ds1307,bluetooth,sh1106
@@ -7,12 +9,12 @@ from sim800l import SIM
 import framebuf
 from random import randint
 
+##############################################
+
 #Apertura de archivo de ajustes
 ajuste = open("ajustes.txt","r")
 ajustes=ajuste.readlines()
 ajuste.close()
-
-
 
 #Variables de ajustes
 nombreBluetooth=ajustes[15].strip("\n").split(":")[1]
@@ -28,7 +30,7 @@ IPort=""
 apn=ajustes[2].strip("\n").split(":")[1]
 version=ajustes[23].strip("\n").split(":")[1]
 
-
+##############################################
 
 miRed = network.WLAN(network.STA_IF)
 miRed.active(True)
@@ -42,15 +44,14 @@ except:
 #miRed.config(pm=miRed.PM_NONE)
 wifiFlag=0
 
+##############################################
+
 
 p=0
 q=1
 config_flag=False
 
 #variables para alerta
-telefono=3148663113
-AlertFlag=False
-mensajeAlerta = "Alerta Geologica"
 limite=0
 lectura=0
 k_value=0.48
@@ -64,6 +65,7 @@ temporal=""
 ble=bluetooth.BLE()
 buart=BLEUART(ble,nombreBluetooth)
 
+##############################################
 
 #imagenes OLED
 with open('images/logo.pbm', 'rb') as f:
@@ -96,8 +98,6 @@ with open('images/gprsOn.pbm', 'rb') as f:
 fbufgprson = framebuf.FrameBuffer(gprson, 12, 9, framebuf.MONO_HLSB)
 
 
-##################
-
 
 with open('images/wifiOff.pbm', 'rb') as f:
     f.readline() # Magic number
@@ -120,11 +120,11 @@ with open('images/gprsOff.pbm', 'rb') as f:
     gprsoff = bytearray(f.read())
 fbufgprsoff = framebuf.FrameBuffer(gprsoff, 12, 9, framebuf.MONO_HLSB)
 
-    
+##############################################
     
 #Interrupcion recepcion Bluetooth
 def on_RX():
-    global wifi,claveWifi,server,puerto,user,claveMqtt,telefono,p,config_flag, AlertFlag, limite,IPport,q,k_value,Tel0,Tel1,Tel2,Tel3
+    global wifi,claveWifi,server,puerto,user,claveMqtt,p,config_flag, limite,IPport,q,k_value,Tel0,Tel1,Tel2,Tel3
     #Lectura de entrada bluetooth
     rxbuffer=buart.read().decode().rstrip('\x00')
     rxbuffer=rxbuffer.replace("\n","")
@@ -180,15 +180,6 @@ def on_RX():
             element=element.replace("\r","")
             claveMqtt=str(element)
             p=0
-        if element[0]=="t" and len(element) != 0:
-            element=element[1:]
-            element=element.replace("\n","")
-            element=element.replace("\r","")
-            telefono=str(element)
-            p=0
-        if element[0]=="z" and len(element) != 0:
-            AlertFlag=True
-            p=0
         if element[0]=="y" and len(element) != 0:
             element=element[1:]
             element=element.replace("\n","")
@@ -201,6 +192,9 @@ def on_RX():
             element=element.replace("\r","")
             k_value=str(element)
             q=1
+            
+            
+
         
 #proceso desconexion Bluetooth       
 def on_Disconect():
@@ -212,6 +206,8 @@ def on_Disconect():
 buart.irq(handler=on_RX)
 buart.discnthandler(handler=on_Disconect)
 
+
+##############################################
 
 #LIBRERIA PRINCIPAL EMA
 class EMA():
@@ -277,6 +273,8 @@ class EMA():
             self.sd = machine.SDCard(slot=2, freq=1320000)
         except:
             machine.reset()
+            
+    ##############################################
 
     #Retorno de hora y fecha RTC
     def rtc(self):
@@ -284,6 +282,8 @@ class EMA():
             return(self.ds.datetime())
         except:
             return [0,0,0,0,0,0,0,0]
+        
+    ##############################################
     
     #Funciones SD_card
     def leerSD(self):
@@ -292,6 +292,8 @@ class EMA():
         lectura=logf.read()
         logf.close()
         return lectura
+    
+    ##############################################
     
     def escribirSD(self,temp):
         try:
@@ -305,6 +307,9 @@ class EMA():
                 os.mount(self.sd, "/sd")
             except:
                 pass
+            
+    ##############################################
+    
     #Envio de datos mediante Bluetooth
     def envioBt(self,temp):
         global config_flag
@@ -315,9 +320,12 @@ class EMA():
         except:
             ##print("error de envio")
             self.t=0
+            
+    ##############################################
+    
     #Ajustes de envio de datos, wifi y MQTT
     def envioDatos (self,temp,hora):
-        global server,puerto,user,claveMqtt,telefono,IPport,AlertFlag, limite, p,miRed,wifiFlag, wifi, claveWifi,miRed
+        global server,puerto,user,claveMqtt,IPport, limite, p,miRed,wifiFlag, wifi, claveWifi,miRed
         self.temp1 = temp
         varTemp=miRed.status()
         varFlag=0
@@ -345,47 +353,6 @@ class EMA():
                 self.oled.show()
             except:
                 pass
-        """
-        elif varTemp==201:
-            try:
-                self.oled.fill_rect(1,45,12,9,0)
-                self.oled.blit(fbufwifion,1,45)
-                self.oled.show()
-            except:
-                pass
-            
-            wifiFlag=wifiFlag+1
-            if wifiFlag==10:
-                try:
-                    #print('-------------- Reiniciando wifi ---------------')
-                    miRed.active(False)
-                    miRed = None
-                    time.sleep(1)
-                    miRed = network.WLAN(network.STA_IF)
-                    miRed.active(True)
-                    #print("ok3")
-                    miRed.config(reconnects=-1)
-                    #print("ok4")
-                    miRed.config(txpower=9)
-                    #print("ok5")
-                    try:
-                        miRed.connect(wifi, claveWifi)
-                    except:
-                        pass
-                    #print("okFull")
-                    time.sleep(3)
-                    if miRed.status()==1010:
-                        varFlag=1
-                    else:
-                        pass
-                    
-                except:
-                    print('error....')
-                    pass
-                wifiFlag=0
-        else:
-            pass
-        """
         try:
             self.oled.fill_rect(64,0,64,64,0)
             self.oled.vline(63,10,45,1)
@@ -400,6 +367,7 @@ class EMA():
             
         except:
             pass
+        
         self.envioBt(self.temp1)
         
         if varFlag==1:
@@ -436,12 +404,9 @@ class EMA():
                         self.cliente.disconnect()
                     except:
                         pass
+                    
+    ##############################################
 
-    #Envio de alerta mediante sms      
-        if AlertFlag:
-            self.AlertSms()
-            AlertFlag=False
-    
 
     #OLED
     def escribirOLED(self,mensaje1,mensaje2):
@@ -458,7 +423,9 @@ class EMA():
         except:
             pass
         
-
+    
+    ##############################################
+    
     def envioDatosSim(self,temp):
         
     
@@ -480,6 +447,8 @@ class EMA():
             except:
                 pass
     
+    ##############################################
+    
     def envioDatosSMS(self,datos,fecha,hora):
         #mensaje="EMA v3 RP:\n"+fecha+" - "+hora+"\n"+"Acx="+str(datos[0])+"\n"+"Acy="+str(datos[1])+"\n"+"Acz="+str(datos[2])+"\n"+"Tmp="+str(datos[6])+"\n"+"Plu="+str(datos[7])+"\n"+"Dis="+str(datos[8])+"\n"+"Qow="+str(datos[9])
         mensaje="Este es un mensaje de prueba... : "+"Dis = "+str(datos[8])+" Qow= "+str(datos[9])
@@ -492,8 +461,7 @@ class EMA():
         #pass
         self.sim.disconnect()
         
-        
-              
+    ##############################################
             
     def sensores(self):
         try:
@@ -506,3 +474,6 @@ class EMA():
             #print('error sensores')
             pass
         return self.temp
+    
+    
+##############################################
