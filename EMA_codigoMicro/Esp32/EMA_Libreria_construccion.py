@@ -243,8 +243,11 @@ class EMA():
             pass
 
         #RTC_init
-        self.ds = ds1307.DS1307(self.bus)
-        self.ds.halt(False)
+        try:
+            self.ds = ds1307.DS1307(self.bus)
+            self.ds.halt(False)
+        except:
+            pass
         #SD_init
         try:
             self.sd = machine.SDCard(slot=2, freq=1320000)
