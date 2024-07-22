@@ -46,20 +46,10 @@ wifiFlag=0
 
 ##############################################
 
-
-p=0
-q=1
 config_flag=False
 
 #variables para alerta
-limite=0
-lectura=0
-k_value=0.48
-contador=0
-calidad="0"
-
-#APN GPRS
-temporal=""
+#k_value=0.48
 
 #Instancias de objetos
 ble=bluetooth.BLE()
@@ -124,7 +114,7 @@ fbufgprsoff = framebuf.FrameBuffer(gprsoff, 12, 9, framebuf.MONO_HLSB)
     
 #Interrupcion recepcion Bluetooth
 def on_RX():
-    global wifi,claveWifi,server,puerto,user,claveMqtt,p,config_flag, limite,IPport,q,k_value,Tel0,Tel1,Tel2,Tel3
+    global wifi,claveWifi,server,puerto,user,claveMqtt,config_flag,IPport,Tel0,Tel1,Tel2,Tel3
     #Lectura de entrada bluetooth
     rxbuffer=buart.read().decode().rstrip('\x00')
     rxbuffer=rxbuffer.replace("\n","")
@@ -144,54 +134,41 @@ def on_RX():
             element=element.replace("\n","")
             element=element.replace("\r","")
             wifi=str(element)
-            p=0
         
         if element[0]=="c" and len(element) != 0:
             element=element[1:]
             element=element.replace("\n","")
             element=element.replace("\r","")
             claveWifi=str(element)
-            p=0
             
         if element[0]=="s" and len(element) != 0:
             element=element[1:]
             element=element.replace("\n","")
             element=element.replace("\r","")
             server=str(element)
-            p=0
             
         if element[0]=="p" and len(element) != 0:
             element=element[1:]
             element=element.replace("\n","")
             element=element.replace("\r","")
             puerto=int(element)
-            p=0
             
         if element[0]=="u" and len(element) != 0:
             element=element[1:]
             element=element.replace("\n","")
             element=element.replace("\r","")
             user=str(element)
-            p=0
             
         if element[0]=="m" and len(element) != 0:
             element=element[1:]
             element=element.replace("\n","")
             element=element.replace("\r","")
             claveMqtt=str(element)
-            p=0
-        if element[0]=="y" and len(element) != 0:
-            element=element[1:]
-            element=element.replace("\n","")
-            element=element.replace("\r","")
-            limite=str(element)
-            p=0
         if element[0]=="k":
             element=element[1:]
             element=element.replace("\n","")
             element=element.replace("\r","")
             k_value=str(element)
-            q=1
             
             
 
@@ -325,7 +302,7 @@ class EMA():
     
     #Ajustes de envio de datos, wifi y MQTT
     def envioDatos (self,temp,hora):
-        global server,puerto,user,claveMqtt,IPport, limite, p,miRed,wifiFlag, wifi, claveWifi,miRed
+        global server,puerto,user,claveMqtt,IPport,miRed,wifiFlag, wifi, claveWifi,miRed
         self.temp1 = temp
         varTemp=miRed.status()
         varFlag=0
@@ -410,7 +387,6 @@ class EMA():
 
     #OLED
     def escribirOLED(self,mensaje1,mensaje2):
-        global calidad
         
         try:
             self.oled.fill(0)
