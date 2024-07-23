@@ -368,7 +368,7 @@ class EMA():
             if self.t==0:
                 try: 
                     #print("Conectando MQTT...")
-                    self.cliente = MQTTClient(client_id="rueb",server=str(server),port=int(puerto),user=str(user),password=str(claveMqtt),keepalive=60)
+                    self.cliente = MQTTClient(client_id="rueb"+str(randint(1,1000)),server=str(server),port=int(puerto),user=str(user),password=str(claveMqtt),keepalive=60)
                     self.cliente.connect()
                     self.t=1
                 except:
