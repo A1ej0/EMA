@@ -8,6 +8,8 @@ from BLE import BLEUART
 from sim800l import SIM
 import framebuf
 from random import randint
+from ntptime import settime
+from ntptime import host as hostntp
 
 ##############################################
 
@@ -29,6 +31,7 @@ claveMqtt=ajustes[6].strip("\n").split(":")[1]
 IPort=""
 apn=ajustes[2].strip("\n").split(":")[1]
 version=ajustes[23].strip("\n").split(":")[1]
+hostntp = "1.europe.pool.ntp.org"
 
 ##############################################
 
@@ -258,6 +261,13 @@ class EMA():
 
     #Retorno de hora y fecha RTC
     def rtc(self):
+        try:
+            settime()
+            tmptm=time.localtime(time.time() + (-5 * 3600))
+            now = (tmptm[0], tmptm[1], tmptm[2], tmptm[6], tmptm[3], tmptm[4], tmptm[5], tmptm[7])
+            ds.datetime(now)
+        except:
+            pass
         try:
             return(self.ds.datetime())
         except:
