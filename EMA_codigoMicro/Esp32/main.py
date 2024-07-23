@@ -28,7 +28,7 @@ auxFecha=0
 auxsms=0
 sensores=0
 fechaHora=0
-
+ordTemp=0
 
 #Envio de datos mediante wifi
 def envioWifiBt():
@@ -81,14 +81,17 @@ while True:
         sensores=EMA.sensores()
         sensores=sensores[1:-1]
         sensores=sensores.split("$")
-        
         for i in range(len(sensores)-1):
             if float(sensores[i])!=0:
                 datos[i]=sensores[i]
         if sensores[-1][0]=="D":
             datos[8]=sensores[-1][1:]
         elif sensores[-1][0]=="P":
-            datos[7]=str(float(sensores[-1][1:])*0.149)
+            if ordTemp != ord(sensores[-1][2]):
+                ordTemp = ord(sensores[-1][2])
+                datos[7]=str(int(datos[7])+int(sensores[-1][2:]))
+                print("Pluv")
+                
         elif sensores[-1][0]=="Q":
             datos[9]=sensores[-1][1:]
         else:
@@ -104,16 +107,6 @@ while True:
     
     if count>=3:
         #lluvia=0.149
-        if tempoFecha==0:
-            auxFecha=fechaHora[4]
-            tempoFecha=1
-        else:
-            if fechaHora[4] != 0:
-                if auxFecha != fechaHora[4]:
-                    auxsms=1
-                    tempoFecha=0
-                else:
-                    pass
         for i in range(len(datos)):
             if textoRaw != "":
                 textoRaw=textoRaw+" , "+str(datos[i])

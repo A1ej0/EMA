@@ -333,21 +333,25 @@ class EMA():
                 self.oled.show()
             except:
                 pass
+        else:
+            pass
+        
         try:
             self.oled.fill_rect(64,0,64,64,0)
             self.oled.vline(63,10,45,1)
-            self.oled.hline(63,30,50,1)
-            self.oled.text("Hora:",65,10)
-            self.oled.text(hora,65,20)
-            self.oled.text('Qt:',65,40)
-            self.oled.text(str(self.temp1[9]),90,40)
-            self.oled.text('Dt:',65,50)
-            self.oled.text(str(self.temp1[8]),90,50)
+            self.oled.hline(63,20,50,1)
+            self.oled.text("Hora:",65,0)
+            self.oled.text(hora,65,10)
+            self.oled.text('Qt:',65,30)
+            self.oled.text(str(self.temp1[9]),90,30)
+            self.oled.text('Dt:',65,40)
+            self.oled.text(str(self.temp1[8]),90,40)
+            self.oled.text('PV:',65,50)
+            self.oled.text(str(self.temp1[7]),90,50)
             self.oled.show()
             
         except:
             pass
-        
         self.envioBt(self.temp1)
         
         if varFlag==1:
