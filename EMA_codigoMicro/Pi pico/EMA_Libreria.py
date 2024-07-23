@@ -1,23 +1,13 @@
 #Librerias y dependencias
 from ustruct import unpack as unp
 from machine import I2C, Pin, SPI,SoftI2C
-import time,os,machine,random
+import time
 from mpu9250 import MPU9250
 
 
 #Variables usadas
-p=0
 q=1
-
-
-limite=0
-lectura=0
 k_value=0.48
-contador=0
-
-#APN GPRS
-temporal=""
-
 
 #Interrupcion recepcion Bluetooth
 
@@ -27,10 +17,6 @@ temporal=""
 
 #LIBRERIA PRINCIPAL EMA
 class EMA():
-    
-    def __init__(self):
-        pass
-        #self.bus = SoftI2C(scl=Pin(17), sda=Pin(16), freq=100_000)
 
     #Calibracion temperatura
 

@@ -1,8 +1,6 @@
-from time import sleep
 import _thread
 from machine import SoftI2C, Pin, UART
 from i2cslave import i2c_slave
-import utime
 from EMA_Libreria import EMA
 from ulora import LoRa, SPIConfig
 from machine import WDT
@@ -122,4 +120,5 @@ while True:
     except:
         pass
         
+
 
