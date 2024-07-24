@@ -36,13 +36,19 @@ hostntp = "1.europe.pool.ntp.org"
 ##############################################
 
 miRed = network.WLAN(network.STA_IF)
+try:
+    miRed.disconnect()
+    miRed.active(False)
+except:
+    pass
 miRed.active(True)
-miRed.config(dhcp_hostname="EMAV"+version)
+miRed.config(dhcp_hostname="EMAV"+str(version)+'-'+str(randint(1,10)))
 miRed.config(reconnects=-1)
 miRed.config(txpower=9)
 try:
     miRed.connect(wifi, claveWifi)
 except:
+    print('problema wifi')
     pass
 #miRed.config(pm=miRed.PM_NONE)
 wifiFlag=0
@@ -193,6 +199,7 @@ buart.discnthandler(handler=on_Disconect)
 class EMA():
     
     def __init__(self):
+        global server,puerto,user,claveMqtt
         
         self.temp=0
         self.inicial=0
@@ -257,6 +264,8 @@ class EMA():
         except:
             machine.reset()
             
+        self.cliente = MQTTClient(client_id="EMA"+str(randint(1,1000)),server=str(server),port=int(puerto),user=str(user),password=str(claveMqtt),keepalive=60)
+            
     ##############################################
 
     #Retorno de hora y fecha RTC
@@ -265,7 +274,7 @@ class EMA():
             settime()
             tmptm=time.localtime(time.time() + (-5 * 3600))
             now = (tmptm[0], tmptm[1], tmptm[2], tmptm[6], tmptm[3], tmptm[4], tmptm[5], tmptm[7])
-            ds.datetime(now)
+            self.ds.datetime(now)
         except:
             pass
         try:
@@ -315,7 +324,7 @@ class EMA():
     
     #Ajustes de envio de datos, wifi y MQTT
     def envioDatos (self,temp,hora):
-        global server,puerto,user,claveMqtt,IPport,miRed,wifiFlag, wifi, claveWifi,miRed
+        global IPport,miRed,wifiFlag, wifi, claveWifi
         self.temp1 = temp
         varTemp=miRed.status()
         varFlag=0
@@ -343,6 +352,11 @@ class EMA():
                 self.oled.show()
             except:
                 pass
+        elif varTemp==201:
+            time.sleep(1)
+            if miRed.status()==201:
+                miRed.disconnect()
+                miRed.connect(wifi, claveWifi)
         else:
             pass
         
@@ -366,16 +380,16 @@ class EMA():
         
         if varFlag==1:
             if self.t==0:
+                try:
+                    self.cliente.disconnect()
+                except:
+                    pass
                 try: 
                     #print("Conectando MQTT...")
-                    self.cliente = MQTTClient(client_id="rueb"+str(randint(1,1000)),server=str(server),port=int(puerto),user=str(user),password=str(claveMqtt),keepalive=60)
                     self.cliente.connect()
                     self.t=1
                 except:
-                    try:
-                        self.cliente.disconnect()
-                    except:
-                        pass
+                    pass
                     #print("error de conexion MQTT...")
             elif self.t==1:
                 try:
