@@ -5,7 +5,6 @@ from machine import I2C, Pin
 import network,time,os,machine,ds1307,bluetooth,sh1106
 from simple import MQTTClient
 from BLE import BLEUART
-from sim800l import SIM
 import framebuf
 from random import randint
 from ntptime import settime
@@ -29,7 +28,6 @@ puerto=ajustes[4].strip("\n").split(":")[1]
 user=ajustes[5].strip("\n").split(":")[1]
 claveMqtt=ajustes[6].strip("\n").split(":")[1]
 IPort=""
-apn=ajustes[2].strip("\n").split(":")[1]
 version=ajustes[23].strip("\n").split(":")[1]
 hostntp = "1.europe.pool.ntp.org"
 
@@ -127,7 +125,7 @@ fbufgprsoff = framebuf.FrameBuffer(gprsoff, 12, 9, framebuf.MONO_HLSB)
     
 #Interrupcion recepcion Bluetooth
 def on_RX():
-    global wifi,claveWifi,server,puerto,user,claveMqtt,config_flag,IPport,Tel0,Tel1,Tel2,Tel3,frecuenciaEnvio,k_value,altura
+    global wifi,claveWifi,server,puerto,user,claveMqtt,config_flag,IPport,Tel0,Tel1,Tel2,Tel3
     #Lectura de entrada bluetooth
     rxbuffer=buart.read().decode().rstrip('\x00')
     rxbuffer=rxbuffer.replace("\n","")
@@ -139,9 +137,6 @@ def on_RX():
         config_flag=True
     if rxbuffer == "EXITconfig":
         config_flag=False
-    print(rxbuffer)
-    
-
     lista=rxbuffer.split(';')
     #Evaluacion de entrada para variables desde la aplicacion
     for element in lista:
@@ -180,7 +175,7 @@ def on_RX():
             element=element.replace("\n","")
             element=element.replace("\r","")
             claveMqtt=str(element)
-            
+        
         if element[0]=="k":
             element=element[1:]
             element=element.replace("\n","")
@@ -199,7 +194,9 @@ def on_RX():
             element=element.replace("\r","")
             frecuenciaEnvio=str(element)
             
-         
+        
+            
+            
 
         
 #proceso desconexion Bluetooth       
@@ -224,7 +221,6 @@ class EMA():
         self.temp=0
         self.inicial=0
         self.final=0
-        self.sim=SIM()
         #Leds indicadores
         self.led5 = Pin(25, Pin.OUT, Pin.PULL_DOWN)
         self.led2 = Pin(26, Pin.OUT, Pin.PULL_DOWN)
@@ -240,7 +236,6 @@ class EMA():
         #i2c_init
         self.bus = I2C(1, scl=Pin(22), sda=Pin(21), freq=50000)
         #UART init
-        self.sim = SIM()
         #Oled init (1.3)
         try:
             self.oled = sh1106.SH1106_I2C(128, 64, self.bus, Pin(25), 0x3c)
@@ -330,12 +325,29 @@ class EMA():
     ##############################################
     
     #Envio de datos mediante Bluetooth
-    def envioBt(self,temp):
+    def envioBt(self,temp,hora):
+        self.temp2 = temp
         global config_flag
         try:
             if not config_flag:
+                lista1=temp[:6]
+                lista2=temp[6:]
+                
+                lista1=str(lista1).replace(" ","")
+                lista1=str(lista1).replace("'","")
+                lista1=lista1[1:-1]
+                lista1="G,"+lista1
+                
+                lista2=str(lista2).replace(" ","")
+                lista2=str(lista2).replace("'","")
+                lista2=lista2[1:-1]
+                lista2="H,"+lista2
+                
                 self.led5.value(not self.led5.value())
-                buart.write("EMA dice: "+str(temp)+"\n")
+                
+                buart.write(str(lista1)+"\n")
+                time.sleep(0.5)
+                buart.write(str(lista2)+"\n")
         except:
             ##print("error de envio")
             self.t=0
@@ -346,11 +358,11 @@ class EMA():
             self.oled.text("Hora:",65,0)
             self.oled.text(hora,65,10)
             self.oled.text('Qt:',65,30)
-            self.oled.text(str(self.temp1[9]),90,30)
+            self.oled.text(str(self.temp2[9]),90,30)
             self.oled.text('Dt:',65,40)
-            self.oled.text(str(self.temp1[8]),90,40)
+            self.oled.text(str(self.temp2[8]),90,40)
             self.oled.text('PV:',65,50)
-            self.oled.text(str(self.temp1[7]),90,50)
+            self.oled.text(str(self.temp2[7]),90,50)
             self.oled.show()
             
         except:
@@ -396,7 +408,6 @@ class EMA():
         else:
             pass
         
-        self.envioBt(self.temp1)
         
         if varFlag==1:
             if self.t==0:
@@ -452,42 +463,6 @@ class EMA():
     
     ##############################################
     
-    def envioDatosSim(self,temp):
-        
-    
-        respuesta=self.sim.envioDatosSim(temp)
-        
-        if respuesta:
-            try:
-                self.oled.fill_rect(29,45,12,9,0)
-                self.oled.blit(fbufgprsoff,29,45)
-                self.oled.show()
-            except:
-                pass
-            
-        else:
-            try:
-                self.oled.fill_rect(29,45,12,9,0)
-                self.oled.blit(fbufgprson,29,45)
-                self.oled.show()
-            except:
-                pass
-    
-    ##############################################
-    
-    def envioDatosSMS(self,datos,fecha,hora):
-        #mensaje="EMA v3 RP:\n"+fecha+" - "+hora+"\n"+"Acx="+str(datos[0])+"\n"+"Acy="+str(datos[1])+"\n"+"Acz="+str(datos[2])+"\n"+"Tmp="+str(datos[6])+"\n"+"Plu="+str(datos[7])+"\n"+"Dis="+str(datos[8])+"\n"+"Qow="+str(datos[9])
-        mensaje="Este es un mensaje de prueba... : "+"Dis = "+str(datos[8])+" Qow= "+str(datos[9])
-        self.sim.AlertSms(mensaje)
-            
-    def conectarSIM(self):
-        #pass
-        self.sim.connectS()
-    def desconectarSIM(self):
-        #pass
-        self.sim.disconnect()
-        
-    ##############################################
             
     def sensores(self):
         try:
